@@ -1,0 +1,1 @@
+powershell kullanırken && yerine ; kullan.

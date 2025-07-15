@@ -1,0 +1,79 @@
+# Java / Maven (order-api)
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Kotlin / Gradle (restaurant-api)
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
+.gradletasknamecache
+gradle-wrapper.properties
+
+# Go (delivery-api)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+vendor/
+
+# IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+*.sublime-workspace
+.factorypath
+
+# Application logs and runtime files
+*.log
+logs/
+*.pid
+*.hprof
+nohup.out
+.tmp
+.temp
+
+# OS specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+._*
+.Trashes
+
+# Spring Boot
+.spring.boot.properties
+
+# H2 database files
+*.db
+*.mv.db
+*.trace.db
+
+# Node modules (if any frontend integration)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
