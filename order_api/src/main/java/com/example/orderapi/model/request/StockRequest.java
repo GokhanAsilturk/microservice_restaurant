@@ -19,7 +19,7 @@ public class StockRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StockItemDto {
-        private Long productId;
+        private Integer productId;
         private Integer quantity;
     }
 }

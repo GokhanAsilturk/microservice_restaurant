@@ -17,7 +17,7 @@ class ProductService(private val productRepository: ProductRepository) {
     /**
      * ID'ye göre ürün getirir
      */
-    fun getProductById(id: Long): Product {
+    fun getProductById(id: Int): Product {
         return productRepository.findById(id)
             .orElseThrow { NoSuchElementException("Ürün bulunamadı: ID=$id") }
     }
@@ -32,7 +32,7 @@ class ProductService(private val productRepository: ProductRepository) {
     /**
      * Ürün bilgilerini günceller
      */
-    fun updateProduct(id: Long, product: Product): Product {
+    fun updateProduct(id: Int, product: Product): Product {
         if (!productRepository.existsById(id)) {
             throw NoSuchElementException("Ürün bulunamadı: ID=$id")
         }
@@ -43,7 +43,7 @@ class ProductService(private val productRepository: ProductRepository) {
     /**
      * Ürünü siler
      */
-    fun deleteProduct(id: Long) {
+    fun deleteProduct(id: Int) {
         if (!productRepository.existsById(id)) {
             throw NoSuchElementException("Ürün bulunamadı: ID=$id")
         }

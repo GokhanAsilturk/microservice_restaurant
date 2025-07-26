@@ -1,7 +1,10 @@
 package com.example.orderapi.model.order;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,11 +13,14 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     private int customerId;
 
@@ -29,7 +35,7 @@ public class Order {
 
     private Double totalAmount;
 
-    private String deliveryId;
+    private int deliveryId;
 
 
 }

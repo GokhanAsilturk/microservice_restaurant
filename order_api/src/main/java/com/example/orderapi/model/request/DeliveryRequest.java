@@ -1,6 +1,7 @@
 package com.example.orderapi.model.request;
 
 import com.example.orderapi.model.order.OrderItemDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,22 +15,32 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class DeliveryRequest {
 
-    private Long orderId;
-    private int customerId;
-    private String address;
-    private List<DeliveryItemDto> items;
-    private LocalDateTime requestTime;
+    @JsonProperty("order_id")
+    private int orderId;
 
-    public DeliveryRequest(Long orderId, int customerId, String address, List<OrderItemDto> orderItems) {
+    @JsonProperty("customer_id")
+    private int customerId;
+
+    @JsonProperty("address")
+    private String address;
+
+    @JsonProperty("items")
+    private List<DeliveryItemDto> items;
+
+    @JsonProperty("request_time")
+    private String requestTime;
+
+    public DeliveryRequest(int orderId, int customerId, String address, List<OrderItemDto> orderItems) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.address = address;
-        this.requestTime = LocalDateTime.now();
+        // ISO format olarak gönderelim
+        this.requestTime = LocalDateTime.now().toString();
 
         if (orderItems != null) {
             this.items = orderItems.stream()
                     .map(item -> new DeliveryItemDto(
-                            item.getProductId().toString(),
+                            item.getProductId(),
                             item.getName(),
                             item.getQuantity()))
                     .collect(Collectors.toList());
@@ -40,8 +51,13 @@ public class DeliveryRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DeliveryItemDto {
-        private String productId;
+        @JsonProperty("product_id")
+        private int productId;
+
+        @JsonProperty("name")
         private String name;
+
+        @JsonProperty("quantity")
         private Integer quantity;
     }
 }

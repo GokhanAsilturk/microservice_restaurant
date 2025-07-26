@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.NoSuchElementException
 
 data class StockRequest(val items: List<StockItemDto>)
-data class StockItemDto(val productId: Long, val quantity: Int)
+data class StockItemDto(val productId: Int, val quantity: Int)
 data class StockResponse(val available: Boolean, val message: String = "") {
     // Java uyumluluğu için isAvailable() metodu ekliyoruz
     fun isAvailable(): Boolean = available
@@ -47,6 +47,7 @@ class StockService(private val productRepository: ProductRepository) {
                     throw IllegalStateException("${product.name} ürünü için stok yetersiz")
                 }
 
+                // Stok miktarını azaltıyoruz
                 product.stockQuantity -= item.quantity
                 productRepository.save(product)
             }

@@ -6,6 +6,7 @@ import com.example.orderapi.model.order.OrderItemDto;
 import com.example.orderapi.model.request.DeliveryRequest;
 import com.example.orderapi.model.request.OrderRequest;
 import com.example.orderapi.model.request.StockRequest;
+import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -41,29 +42,32 @@ public class OrderService {
             throw new RuntimeException("Stok yetersiz");
         }
 
-        // 2. Stok azaltma işlemi
-        if (!reduceStock(request.getItems())) {
-            throw new RuntimeException("Stok azaltma işlemi başarısız oldu");
+        // 2. Sipariş kaydetme
+        Order order = Order.builder().
+                customerId(request.getCustomerId()).
+                address(request.getAddress()).
+                items(convertToOrderItems(request.getItems())).
+                status("CONFIRMED").
+                totalAmount(calculateTotalAmount(request.getItems())).build();
+        order = orderRepository.save(order);
+
+        // 3. Teslimat başlatma
+        try {
+            DeliveryResponse deliveryResponse = startDelivery(order);
+            if (deliveryResponse != null && deliveryResponse.isSuccess()) {
+                // Teslimat başarıyla başladı
+                order.setDeliveryId(deliveryResponse.getDeliveryId());
+                orderRepository.save(order);
+            } else {
+                throw new RuntimeException("Teslimat başlatılamadı: Teslimat sipariş nesnesine kaydedilemedi.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Teslimat başlatılamadı: " + e.getMessage());
         }
 
-        // 3. Sipariş kaydetme
-        Order order = new Order();
-        order.setCustomerId(request.getCustomerId());
-        order.setAddress(request.getAddress());
-        order.setItems(convertToOrderItems(request.getItems()));
-        order.setStatus("CONFIRMED");
-        order.setOrderDate(LocalDateTime.now());
-        order.setTotalAmount(calculateTotalAmount(request.getItems()));
-
-        orderRepository.save(order);
-
-        // 4. Teslimat başlatma - Şimdilik bu adımı atlıyoruz veya hatayı yakalamıyoruz
-        try {
-            startDelivery(order);
-            // Hata durumunda bile siparişi iptal etmiyoruz
-        } catch (Exception e) {
-            // Loglama yapılabilir ama işlemi durdurmuyoruz
-            System.out.println("Teslimat servisi hatası (siparişe devam ediliyor): " + e.getMessage());
+        // 4. Stok azaltma işlemi
+        if (!reduceStock(request.getItems())) {
+            throw new RuntimeException("Stok azaltma işlemi başarısız oldu");
         }
 
         return "Sipariş başarıyla oluşturuldu";
@@ -97,7 +101,7 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Optional<Order> getOrderById(Long id) {
+    public Optional<Order> getOrderById(int id) {
         return orderRepository.findById(id);
     }
 
@@ -125,7 +129,7 @@ public class OrderService {
 
 
 
-    private boolean startDelivery(Order order) {
+    private DeliveryResponse startDelivery(Order order) {
         try {
             DeliveryRequest deliveryRequest = new DeliveryRequest(
                     order.getId(),
@@ -134,15 +138,33 @@ public class OrderService {
                     order.getItems().stream().map(OrderItem::toDto).toList()
             );
 
-            ResponseEntity<String> response = restTemplate.postForEntity(
+            System.out.println("Teslimat isteği gönderiliyor: " + deliveryRequest);
+
+            ResponseEntity<DeliveryResponse> response = restTemplate.postForEntity(
                     deliveryApiUrl + "/start",
                     deliveryRequest,
-                    String.class
+                    DeliveryResponse.class
             );
 
-            return response.getStatusCode().is2xxSuccessful();
+            System.out.println("Teslimat API yanıtı: " + response.getStatusCode());
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                DeliveryResponse deliveryResponse = response.getBody();
+                System.out.println("Teslimat yanıtı: " + deliveryResponse);
+
+                if (deliveryResponse.isSuccess()) {
+                    return deliveryResponse;
+                } else {
+                    System.out.println("Teslimat başarısız: " + deliveryResponse.getMessage());
+                }
+            } else {
+                System.out.println("Teslimat API'den geçersiz yanıt alındı");
+            }
+            return null;
         } catch (Exception e) {
-            return false;
+            System.out.println("Teslimat başlatma hatası: " + e.getMessage());
+            e.printStackTrace(); // Ayrıntılı hata günlüğü için
+            return null;
         }
     }
 

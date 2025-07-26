@@ -1,0 +1,130 @@
+basePath: /api/delivery
+definitions:
+  models.Delivery:
+    properties:
+      address:
+        type: string
+      customerId:
+        type: integer
+      deliveryId:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.OrderItem'
+        type: array
+      orderId:
+        type: integer
+      status:
+        type: string
+    type: object
+  models.DeliveryRequest:
+    properties:
+      address:
+        type: string
+      customerId:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.OrderItem'
+        type: array
+      orderId:
+        type: integer
+    type: object
+  models.DeliveryResponse:
+    properties:
+      deliveryId:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  models.OrderItem:
+    properties:
+      price:
+        type: number
+      productId:
+        type: integer
+      productName:
+        type: string
+      quantity:
+        type: integer
+    type: object
+host: localhost:8083
+info:
+  contact: {}
+  description: Teslimat mikro servisi için API dokümantasyonu
+  title: Delivery API
+  version: "1.0"
+paths:
+  /api/delivery/list:
+    get:
+      consumes:
+      - application/json
+      description: Sistemdeki tüm teslimatları liste halinde döndürür
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Delivery'
+            type: array
+      summary: Tüm teslimatları listeler
+      tags:
+      - deliveries
+  /api/delivery/start:
+    post:
+      consumes:
+      - application/json
+      description: Müşteri bilgileri ve sipariş detayları ile yeni bir teslimat kaydı
+        oluşturur
+      parameters:
+      - description: Teslimat İsteği
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeliveryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeliveryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DeliveryResponse'
+      summary: Yeni bir teslimat başlatır
+      tags:
+      - deliveries
+  /api/delivery/status/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Teslimat ID'si ile teslimat durumunu ve detaylarını getirir
+      parameters:
+      - description: Teslimat ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Delivery'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Teslimat durumunu sorgular
+      tags:
+      - deliveries
+swagger: "2.0"

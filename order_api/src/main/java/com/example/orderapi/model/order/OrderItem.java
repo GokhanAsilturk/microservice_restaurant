@@ -12,9 +12,9 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    private Long productId;
+    private int productId;
 
     private String productName;
 

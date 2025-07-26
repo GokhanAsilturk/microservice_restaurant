@@ -19,7 +19,7 @@ class ProductController(private val productService: ProductService) {
     }
 
     @GetMapping("/{id}")
-    fun getProductById(@PathVariable id: Long): ResponseEntity<Product> {
+    fun getProductById(@PathVariable id: Int): ResponseEntity<Product> {
         val product = productService.getProductById(id)
         return ResponseEntity.ok(product)
     }
@@ -31,13 +31,13 @@ class ProductController(private val productService: ProductService) {
     }
 
     @PutMapping("/{id}")
-    fun updateProduct(@PathVariable id: Long, @RequestBody product: Product): ResponseEntity<Product> {
+    fun updateProduct(@PathVariable id: Int, @RequestBody product: Product): ResponseEntity<Product> {
         val updatedProduct = productService.updateProduct(id, product)
         return ResponseEntity.ok(updatedProduct)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProduct(@PathVariable id: Long): ResponseEntity<Void> {
+    fun deleteProduct(@PathVariable id: Int): ResponseEntity<Void> {
         productService.deleteProduct(id)
         return ResponseEntity.noContent().build()
     }
