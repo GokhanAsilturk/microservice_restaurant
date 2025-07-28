@@ -1,7 +1,7 @@
 package models
 
 type OrderItem struct {
-	ProductId   int64   `json:"productId"`
+	ProductId   int   `json:"productId"`
 	ProductName string  `json:"productName"`
 	Quantity    int     `json:"quantity"`
 	Price       float64 `json:"price"`
@@ -9,8 +9,8 @@ type OrderItem struct {
 
 // Teslimat talebi için model
 type DeliveryRequest struct {
-	OrderId     int64      `json:"orderId"`
-	CustomerId  int64      `json:"customerId"`
+	OrderId     int      `json:"orderId"`
+	CustomerId  int     `json:"customerId"`
 	Address     string     `json:"address"`
 	Items       []OrderItem `json:"items"`
 }
@@ -18,15 +18,15 @@ type DeliveryRequest struct {
 // Teslimat yanıtı için model
 type DeliveryResponse struct {
 	Success     bool   `json:"success"`
-	DeliveryId  string `json:"deliveryId,omitempty"`
+	DeliveryId  int    `json:"deliveryId,omitempty"`
 	Message     string `json:"message"`
 }
 
 // Teslimat bilgisi modeli
 type Delivery struct {
-	DeliveryId  string     `json:"deliveryId"`
-	OrderId     int64      `json:"orderId"`
-	CustomerId  int64      `json:"customerId"`
+	DeliveryId  int     `json:"deliveryId"`
+	OrderId     int      `json:"orderId"`
+	CustomerId  int      `json:"customerId"`
 	Address     string     `json:"address"`
 	Status      string     `json:"status"`
 	Items       []OrderItem `json:"items"`

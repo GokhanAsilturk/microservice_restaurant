@@ -1,15 +1,15 @@
 @echo off
 REM Restaurant API is starting...
 cd restaurant-api
-start mvn spring-boot:run
+start "Restaurant API" cmd /k mvn spring-boot:run
 cd ..
 
 REM Delivery API is starting...
 cd delivery-api
-start go run main.go
+start "Delivery API" cmd /k go run main.go
 cd ..
 
 REM Order API is starting...
 cd order_api
-start mvn spring-boot:run
+start "Order API" cmd /k mvn spring-boot:run
 cd ..

@@ -3,14 +3,20 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 
 	"delivery-api/models"
 )
 
-// İşlem başarılı olması için %80 şans veren bir simülasyon
-var deliveries = make(map[string]models.Delivery)
+var deliveries = make(map[int]models.Delivery)
+var lastDeliveryId = 100 // ID'ler 101'den başlayacak
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 // StartDelivery teslimat başlatır
 // @Summary      Yeni bir teslimat başlatır
@@ -44,7 +50,8 @@ func StartDelivery(c *gin.Context) {
 	}
 
 	// Yeni teslimat kaydı oluştur
-	deliveryID := uuid.New().String()
+	lastDeliveryId++
+	deliveryID := lastDeliveryId
 	delivery := models.Delivery{
 		DeliveryId: deliveryID,
 		OrderId:    request.OrderId,
@@ -57,7 +64,7 @@ func StartDelivery(c *gin.Context) {
 	// Teslimat kaydını sakla
 	deliveries[deliveryID] = delivery
 
-	fmt.Printf("Yeni teslimat başlatıldı: %s, Müşteri: %d, Adres: %s\n",
+	fmt.Printf("Yeni teslimat başlatıldı: %d, Müşteri: %d, Adres: %s\n",
 		deliveryID, request.CustomerId, request.Address)
 
 	// Yanıt gönder
@@ -79,7 +86,16 @@ func StartDelivery(c *gin.Context) {
 // @Failure      404  {object}  map[string]interface{}
 // @Router       /api/delivery/status/{id} [get]
 func GetDeliveryStatus(c *gin.Context) {
-	deliveryId := c.Param("id")
+	deliveryIdStr := c.Param("id")
+
+	deliveryId, err := strconv.Atoi(deliveryIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Geçersiz teslimat ID formatı",
+		})
+		return
+	}
 
 	if delivery, exists := deliveries[deliveryId]; exists {
 		c.JSON(http.StatusOK, delivery)

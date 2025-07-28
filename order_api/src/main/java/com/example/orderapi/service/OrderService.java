@@ -8,12 +8,12 @@ import com.example.orderapi.model.request.OrderRequest;
 import com.example.orderapi.model.request.StockRequest;
 import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.repository.OrderRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,33 +35,34 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    @Transactional
     public String placeOrder(OrderRequest request) {
         // 1. Stok kontrolü
-        boolean stockAvailable = checkStock(request.getItems());
-        if (!stockAvailable) {
+        if (!checkStock(request.getItems())) {
             throw new RuntimeException("Stok yetersiz");
         }
 
         // 2. Sipariş kaydetme
-        Order order = Order.builder().
-                customerId(request.getCustomerId()).
-                address(request.getAddress()).
-                items(convertToOrderItems(request.getItems())).
-                status("CONFIRMED").
-                totalAmount(calculateTotalAmount(request.getItems())).build();
-        order = orderRepository.save(order);
+        Order order = orderRepository.save(request.toEntity());
 
         // 3. Teslimat başlatma
         try {
             DeliveryResponse deliveryResponse = startDelivery(order);
             if (deliveryResponse != null && deliveryResponse.isSuccess()) {
+
                 // Teslimat başarıyla başladı
+                // Order doğrudan güncelle - koleksiyonları değiştirmeden
                 order.setDeliveryId(deliveryResponse.getDeliveryId());
+                order.setStatus("DELIVERING");
+
                 orderRepository.save(order);
+                System.out.println("Sipariş başarıyla güncellendi, teslimat ID: " + order.getDeliveryId());
             } else {
                 throw new RuntimeException("Teslimat başlatılamadı: Teslimat sipariş nesnesine kaydedilemedi.");
             }
         } catch (Exception e) {
+            System.err.println("Teslimat başlatma hatası: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Teslimat başlatılamadı: " + e.getMessage());
         }
 
@@ -73,6 +74,7 @@ public class OrderService {
         return "Sipariş başarıyla oluşturuldu";
     }
 
+
     /**
      * Stok azaltma işlemi yapar
      */
@@ -80,7 +82,8 @@ public class OrderService {
         try {
             StockRequest stockRequest = new StockRequest(
                     items.stream()
-                            .map(item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
+                            .map(
+                                    item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
                             .toList()
             );
 
@@ -113,7 +116,7 @@ public class OrderService {
                             .toList()
             );
 
-            // Güncellenen endpoint çağrısı: /check-stock yerine /stock/check kullanıyoruz
+
             ResponseEntity<StockResponse> response = restTemplate.postForEntity(
                     restaurantApiUrl + "/stock/check",
                     stockRequest,
@@ -126,7 +129,6 @@ public class OrderService {
             return false;
         }
     }
-
 
 
     private DeliveryResponse startDelivery(Order order) {
@@ -168,22 +170,5 @@ public class OrderService {
         }
     }
 
-    private List<OrderItem> convertToOrderItems(List<OrderItemDto> itemDtos) {
-        return itemDtos.stream()
-                .map(dto -> {
-                    OrderItem item = new OrderItem();
-                    item.setProductId(dto.getProductId());
-                    item.setProductName(dto.getName());
-                    item.setQuantity(dto.getQuantity());
-                    item.setPrice(dto.getPrice());
-                    return item;
-                })
-                .toList();
-    }
 
-    private Double calculateTotalAmount(List<OrderItemDto> items) {
-        return items.stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
-    }
 }

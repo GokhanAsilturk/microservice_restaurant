@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,28 +21,32 @@ public class OrderRequest {
     private List<OrderItemDto> items;
 
 
-    public Order toOrder() {
-        Order order = new Order();
-        order.setCustomerId(this.customerId);
-        order.setAddress(this.address);
-        order.setStatus("PENDING");
+    public Order toEntity() {
+        return  Order.builder().
+                customerId(customerId).
+                address(address).
+                items(convertToOrderItems(items)).
+                orderDate(LocalDateTime.now()).
+                totalAmount(calculateTotalAmount(items)).
+                status("CONFIRMED").build();
+    }
 
-        List<OrderItem> orderItems = this.items.stream().map(itemDto -> {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProductId(itemDto.getProductId());
-            orderItem.setProductName(itemDto.getName());
-            orderItem.setQuantity(itemDto.getQuantity());
-            orderItem.setPrice(itemDto.getPrice());
-            return orderItem;
-        }).collect(Collectors.toList());
-
-        order.setItems(orderItems);
-
-        Double totalAmount = orderItems.stream()
+    private Double calculateTotalAmount(List<OrderItemDto> items) {
+        return items.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
-        order.setTotalAmount(totalAmount);
+    }
 
-        return order;
+    private List<OrderItem> convertToOrderItems(List<OrderItemDto> itemDtos) {
+        return itemDtos.stream()
+                .map(dto -> {
+                    OrderItem item = new OrderItem();
+                    item.setProductId(dto.getProductId());
+                    item.setProductName(dto.getName());
+                    item.setQuantity(dto.getQuantity());
+                    item.setPrice(dto.getPrice());
+                    return item;
+                })
+                .collect(Collectors.toList());
     }
 }

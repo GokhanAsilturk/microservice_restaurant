@@ -12,7 +12,7 @@ public class DeliveryResponse {
     @JsonProperty("success")
     private boolean success;
 
-    @JsonProperty("delivery_id")
+    @JsonProperty("deliveryId")
     private int deliveryId;
 
     @JsonProperty("message")

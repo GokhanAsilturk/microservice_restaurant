@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class DeliveryRequest {
 
-    @JsonProperty("order_id")
+    @JsonProperty("orderId")
     private int orderId;
 
-    @JsonProperty("customer_id")
+    @JsonProperty("customerId")
     private int customerId;
 
     @JsonProperty("address")
@@ -27,7 +27,7 @@ public class DeliveryRequest {
     @JsonProperty("items")
     private List<DeliveryItemDto> items;
 
-    @JsonProperty("request_time")
+    @JsonProperty("requestTime")
     private String requestTime;
 
     public DeliveryRequest(int orderId, int customerId, String address, List<OrderItemDto> orderItems) {
@@ -51,10 +51,10 @@ public class DeliveryRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DeliveryItemDto {
-        @JsonProperty("product_id")
+        @JsonProperty("productId")
         private int productId;
 
-        @JsonProperty("name")
+        @JsonProperty("productName")
         private String name;
 
         @JsonProperty("quantity")

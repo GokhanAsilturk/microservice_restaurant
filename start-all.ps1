@@ -1,4 +1,3 @@
-# PowerShell başlat scripti
 Write-Host "Restaurant API is starting..." -ForegroundColor Green
 Push-Location -Path ".\restaurant-api"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", ".\mvnw spring-boot:run"
