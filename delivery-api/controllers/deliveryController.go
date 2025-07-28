@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"delivery-api/database"
 	"delivery-api/models"
 )
 
-var deliveries = make(map[int]models.Delivery)
 var lastDeliveryId = 100 // ID'ler 101'den başlayacak
 
 func init() {
@@ -49,28 +49,42 @@ func StartDelivery(c *gin.Context) {
 		return
 	}
 
-	// Yeni teslimat kaydı oluştur
+	// Yeni teslimat ID'si oluştur
 	lastDeliveryId++
-	deliveryID := lastDeliveryId
+	deliveryId := lastDeliveryId
+
+	// Teslimat nesnesini oluştur
 	delivery := models.Delivery{
-		DeliveryId: deliveryID,
+		ID:         fmt.Sprintf("delivery::%d", deliveryId),
+		Type:       "delivery",
+		DeliveryId: deliveryId,
 		OrderId:    request.OrderId,
 		CustomerId: request.CustomerId,
 		Address:    request.Address,
 		Status:     "PREPARING",
 		Items:      request.Items,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
-	// Teslimat kaydını sakla
-	deliveries[deliveryID] = delivery
+	// Couchbase'e kaydet
+	_, err := database.Collection.Insert(delivery.ID, delivery, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.DeliveryResponse{
+			Success: false,
+			Message: "Teslimat kaydedilemedi: " + err.Error(),
+		})
+		return
+	}
 
+	// Log yazdır
 	fmt.Printf("Yeni teslimat başlatıldı: %d, Müşteri: %d, Adres: %s\n",
-		deliveryID, request.CustomerId, request.Address)
+		deliveryId, request.CustomerId, request.Address)
 
-	// Yanıt gönder
+	// Başarılı yanıt döndür
 	c.JSON(http.StatusOK, models.DeliveryResponse{
 		Success:    true,
-		DeliveryId: deliveryID,
+		DeliveryId: deliveryId,
 		Message:    "Teslimat başarıyla oluşturuldu ve hazırlanıyor",
 	})
 }
@@ -97,14 +111,26 @@ func GetDeliveryStatus(c *gin.Context) {
 		return
 	}
 
-	if delivery, exists := deliveries[deliveryId]; exists {
-		c.JSON(http.StatusOK, delivery)
-	} else {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "Teslimat bulunamadı",
-		})
+	var delivery models.Delivery
+
+	// Couchbase'den teslimatı getir
+	err = database.Collection.Get(fmt.Sprintf("delivery::%d", deliveryId), &delivery)
+	if err != nil {
+		if err == gocb.ErrDocumentNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Teslimat bulunamadı",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "Teslimat bilgileri alınamadı: " + err.Error(),
+			})
+		}
+		return
 	}
+
+	c.JSON(http.StatusOK, delivery)
 }
 
 // ListDeliveries tüm teslimatları listeler
@@ -118,7 +144,31 @@ func GetDeliveryStatus(c *gin.Context) {
 func ListDeliveries(c *gin.Context) {
 	var deliveryList []models.Delivery
 
-	for _, delivery := range deliveries {
+	// Tüm teslimatları listele
+	query := "SELECT meta().id, deliveryId, orderId, customerId, address, status, items, createdAt, updatedAt " +
+		"FROM `delivery-api` " +
+		"WHERE type = 'delivery'"
+
+	rows, err := database.Bucket.Query(query, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Teslimatlar alınamadı: " + err.Error(),
+		})
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var delivery models.Delivery
+		err := rows.Scan(&delivery.ID, &delivery.DeliveryId, &delivery.OrderId, &delivery.CustomerId, &delivery.Address, &delivery.Status, &delivery.Items, &delivery.CreatedAt, &delivery.UpdatedAt)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "Teslimat verileri işlenemedi: " + err.Error(),
+			})
+			return
+		}
 		deliveryList = append(deliveryList, delivery)
 	}
 

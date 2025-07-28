@@ -1,6 +1,7 @@
 package main
 
 import (
+	"delivery-api/database"
 	"delivery-api/routes"
 	"fmt"
 	"log"
@@ -15,6 +16,9 @@ import (
 // @BasePath        /api/delivery
 func main() {
 	fmt.Println("Delivery API başlatılıyor...")
+
+	// Couchbase bağlantısını başlat
+	database.InitCouchbase()
 
 	r := routes.SetupRouter()
 

@@ -24,6 +24,7 @@ func SetupRouter() *gin.Engine {
 
 	// Swagger Dokümantasyon endpoint'i
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger-ui/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API endpoint'leri
 	api := r.Group("/api/delivery")

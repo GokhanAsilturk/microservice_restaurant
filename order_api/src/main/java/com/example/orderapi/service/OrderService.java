@@ -8,7 +8,6 @@ import com.example.orderapi.model.request.OrderRequest;
 import com.example.orderapi.model.request.StockRequest;
 import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.repository.OrderRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,23 +34,22 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    @Transactional
+
     public String placeOrder(OrderRequest request) {
         // 1. Stok kontrolü
         if (!checkStock(request.getItems())) {
             throw new RuntimeException("Stok yetersiz");
         }
 
-        // 2. Sipariş kaydetme
-        Order order = orderRepository.save(request.toEntity());
+        // 2. Sipariş kaydetme - Elasticsearch otomatik ID oluşturacak
+        Order order = request.toEntity();
+        order = orderRepository.save(order);
 
         // 3. Teslimat başlatma
         try {
             DeliveryResponse deliveryResponse = startDelivery(order);
             if (deliveryResponse != null && deliveryResponse.isSuccess()) {
-
                 // Teslimat başarıyla başladı
-                // Order doğrudan güncelle - koleksiyonları değiştirmeden
                 order.setDeliveryId(deliveryResponse.getDeliveryId());
                 order.setStatus("DELIVERING");
 

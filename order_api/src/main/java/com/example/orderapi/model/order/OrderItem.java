@@ -1,25 +1,26 @@
 package com.example.orderapi.model.order;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderItem {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    @Field(type = FieldType.Integer)
     private int productId;
 
+    @Field(type = FieldType.Text)
     private String productName;
 
+    @Field(type = FieldType.Integer)
     private Integer quantity;
 
+    @Field(type = FieldType.Double)
     private Double price;
 
     public OrderItemDto toDto() {
