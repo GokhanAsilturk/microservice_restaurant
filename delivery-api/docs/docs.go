@@ -141,7 +141,7 @@ const docTemplate = `{
                     }
                 },
                 "orderId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -164,7 +164,7 @@ const docTemplate = `{
                     }
                 },
                 "orderId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },

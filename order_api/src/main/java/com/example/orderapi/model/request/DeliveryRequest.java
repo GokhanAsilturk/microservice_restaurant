@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class DeliveryRequest {
 
     @JsonProperty("orderId")
-    private int orderId;
+    private String orderId;
 
     @JsonProperty("customerId")
     private int customerId;
@@ -30,7 +30,7 @@ public class DeliveryRequest {
     @JsonProperty("requestTime")
     private String requestTime;
 
-    public DeliveryRequest(int orderId, int customerId, String address, List<OrderItemDto> orderItems) {
+    public DeliveryRequest(String orderId, int customerId, String address, List<OrderItemDto> orderItems) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.address = address;

@@ -13,7 +13,7 @@ type OrderItem struct {
 
 // Teslimat talebi için model
 type DeliveryRequest struct {
-	OrderId     int      `json:"orderId"`
+	OrderId     string      `json:"orderId"`
 	CustomerId  int     `json:"customerId"`
 	Address     string     `json:"address"`
 	Items       []OrderItem `json:"items"`
@@ -31,7 +31,7 @@ type Delivery struct {
 	ID         string      `json:"id,omitempty"`         // Couchbase document ID
 	Type       string      `json:"type"`                 // Couchbase document type
 	DeliveryId int         `json:"deliveryId"`
-	OrderId    int         `json:"orderId"`
+	OrderId    string         `json:"orderId"`
 	CustomerId int         `json:"customerId"`
 	Address    string      `json:"address"`
 	Status     string      `json:"status"`

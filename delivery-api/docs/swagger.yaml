@@ -13,7 +13,7 @@ definitions:
           $ref: '#/definitions/models.OrderItem'
         type: array
       orderId:
-        type: integer
+        type: string
       status:
         type: string
     type: object
@@ -28,7 +28,7 @@ definitions:
           $ref: '#/definitions/models.OrderItem'
         type: array
       orderId:
-        type: integer
+        type: string
     type: object
   models.DeliveryResponse:
     properties:

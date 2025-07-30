@@ -135,7 +135,7 @@
                     }
                 },
                 "orderId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -158,7 +158,7 @@
                     }
                 },
                 "orderId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
