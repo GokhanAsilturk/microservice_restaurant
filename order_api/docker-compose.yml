@@ -1,0 +1,65 @@
+services:
+  order-api-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.4
+    container_name: order-api-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - order_elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - order-network
+
+  order-api-logstash:
+    image: docker.elastic.co/logstash/logstash:9.0.4
+    container_name: order-api-logstash
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    depends_on:
+      - order-api-elasticsearch
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    volumes:
+      - ./logstash/config:/usr/share/logstash/pipeline
+    networks:
+      - order-network
+
+  order-api-kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.4
+    container_name: order-api-kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - order-api-elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://order-api-elasticsearch:9200
+    networks:
+      - order-network
+
+  order-api:
+    build: .
+    container_name: order-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - order-api-elasticsearch
+      - order-api-logstash
+    environment:
+      - ELASTICSEARCH_HOST=order-api-elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - LOGSTASH_HOST=order-api-logstash
+      - LOGSTASH_PORT=5000
+    networks:
+      - order-network
+
+volumes:
+  order_elasticsearch_data:
+
+networks:
+  order-network:
+    driver: bridge

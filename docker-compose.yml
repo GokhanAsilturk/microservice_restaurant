@@ -1,0 +1,140 @@
+services:
+  # Delivery API Services (Port: 8082)
+  delivery-api-couchbasedb:
+    image: couchbase:community-7.6.2
+    container_name: delivery-api-couchbasedb
+    ports:
+      - "8091-8096:8091-8096"
+      - "11210:11210"
+    environment:
+      - COUCHBASE_ADMINISTRATOR_USERNAME=admin
+      - COUCHBASE_ADMINISTRATOR_PASSWORD=password
+    volumes:
+      - delivery_couchbase_data:/opt/couchbase/var
+    networks:
+      - microservice-network
+
+  delivery-api:
+    build: ./delivery-api
+    container_name: delivery-api
+    ports:
+      - "8082:8082"
+    depends_on:
+      - delivery-api-couchbasedb
+    environment:
+      - COUCHBASE_HOST=delivery-api-couchbasedb
+      - COUCHBASE_USERNAME=admin
+      - COUCHBASE_PASSWORD=password
+    networks:
+      - microservice-network
+    restart: on-failure
+
+  # Order API Services (Port: 8080)
+  order-api-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.4
+    container_name: order-api-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - order_elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - microservice-network
+
+  order-api-logstash:
+    image: docker.elastic.co/logstash/logstash:9.0.4
+    container_name: order-api-logstash
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    depends_on:
+      - order-api-elasticsearch
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    volumes:
+      - ./order_api/logstash/config:/usr/share/logstash/pipeline
+    networks:
+      - microservice-network
+
+  order-api-kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.4
+    container_name: order-api-kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - order-api-elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://order-api-elasticsearch:9200
+    networks:
+      - microservice-network
+
+  order-api:
+    build: ./order_api
+    container_name: order-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - order-api-elasticsearch
+      - order-api-logstash
+    environment:
+      - ELASTICSEARCH_HOST=order-api-elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - LOGSTASH_HOST=order-api-logstash
+      - LOGSTASH_PORT=5000
+    networks:
+      - microservice-network
+
+  # Restaurant API Services (Port: 8081)
+  restaurant-api-postgres:
+    image: postgres:15-alpine
+    container_name: restaurant-api-postgres
+    environment:
+      - POSTGRES_DB=restaurant_api
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - restaurant_postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+  restaurant-api-pgadmin:
+    image: dpage/pgadmin4
+    container_name: restaurant-api-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - restaurant-api-postgres
+    networks:
+      - microservice-network
+
+  restaurant-api:
+    build: ./restaurant-api
+    container_name: restaurant-api
+    ports:
+      - "8081:8081"
+    depends_on:
+      - restaurant-api-postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://restaurant-api-postgres:5432/restaurant_api
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+    networks:
+      - microservice-network
+
+volumes:
+  delivery_couchbase_data:
+  order_elasticsearch_data:
+  restaurant_postgres_data:
+
+networks:
+  microservice-network:
+    driver: bridge

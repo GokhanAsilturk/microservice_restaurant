@@ -1,0 +1,36 @@
+services:
+  delivery-api-couchbasedb:
+    image: couchbase:community-7.6.2
+    container_name: delivery-api-couchbasedb
+    ports:
+      - "8091-8096:8091-8096"
+      - "11210:11210"
+    environment:
+      - COUCHBASE_ADMINISTRATOR_USERNAME=admin
+      - COUCHBASE_ADMINISTRATOR_PASSWORD=password
+    volumes:
+      - delivery_couchbase_data:/opt/couchbase/var
+    networks:
+      - delivery-network
+
+  delivery-api:
+    build: .
+    container_name: delivery-api
+    ports:
+      - "8082:8082"
+    depends_on:
+      - delivery-api-couchbasedb
+    environment:
+      - COUCHBASE_HOST=delivery-api-couchbasedb
+      - COUCHBASE_USERNAME=admin
+      - COUCHBASE_PASSWORD=password
+    networks:
+      - delivery-network
+    restart: on-failure
+
+volumes:
+  delivery_couchbase_data:
+
+networks:
+  delivery-network:
+    driver: bridge

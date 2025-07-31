@@ -5,7 +5,7 @@ spring:
   application:
     name: order-api
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${ELASTICSEARCH_HOST:http://localhost}:${ELASTICSEARCH_PORT:9200}
     username:
     password:
     connection-timeout: 10s
@@ -13,8 +13,8 @@ spring:
 
 restaurant:
   api:
-    url: http://localhost:8082/api
+    url: http://localhost:8081/api
 
 delivery:
   api:
-    url: http://localhost:8083/api/delivery
+    url: http://localhost:8082/api/delivery

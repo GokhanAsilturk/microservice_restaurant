@@ -4,6 +4,7 @@ import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.order.OrderItem;
 import com.example.orderapi.model.order.OrderItemDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequest {

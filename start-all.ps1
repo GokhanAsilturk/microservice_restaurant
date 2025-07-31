@@ -1,14 +1,21 @@
-Write-Host "Restaurant API is starting..." -ForegroundColor Green
-Push-Location -Path ".\restaurant-api"
-Start-Process powershell -ArgumentList "-NoExit", "-Command", ".\mvnw spring-boot:run"
-Pop-Location
+# Microservices Docker Management
+Write-Host "Starting all microservices with their databases..."
+docker-compose up -d
 
-Write-Host "Delivery API is starting..." -ForegroundColor Yellow
-Push-Location -Path ".\delivery-api"
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "go run ."
-Pop-Location
-
-Write-Host "Order API is starting..." -ForegroundColor Cyan
-Push-Location -Path ".\order_api"
-Start-Process powershell -ArgumentList "-NoExit", "-Command", ".\mvnw spring-boot:run"
-Pop-Location
+Write-Host "All services started successfully!"
+Write-Host ""
+Write-Host "=== ACCESS POINTS ==="
+Write-Host "APIs:"
+Write-Host "- Order API: http://localhost:8080"
+Write-Host "- Restaurant API: http://localhost:8081"
+Write-Host "- Delivery API: http://localhost:8082"
+Write-Host ""
+Write-Host "Databases & Admin Tools:"
+Write-Host "- Couchbase Admin: http://localhost:8091 (admin/password)"
+Write-Host "- Elasticsearch: http://localhost:9200"
+Write-Host "- Kibana: http://localhost:5601"
+Write-Host "- pgAdmin: http://localhost:5050 (admin@admin.com/admin)"
+Write-Host ""
+Write-Host "Database Connections:"
+Write-Host "- PostgreSQL: localhost:5432 (postgres/1234)"
+Write-Host "- Logstash: localhost:5000"

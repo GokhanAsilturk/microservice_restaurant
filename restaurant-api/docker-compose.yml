@@ -1,0 +1,48 @@
+services:
+  restaurant-api-postgres:
+    image: postgres:15-alpine
+    container_name: restaurant-api-postgres
+    environment:
+      - POSTGRES_DB=restaurant_api
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - restaurant_postgres_data:/var/lib/postgresql/data
+    networks:
+      - restaurant-network
+
+  restaurant-api-pgadmin:
+    image: dpage/pgadmin4
+    container_name: restaurant-api-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - restaurant-api-postgres
+    networks:
+      - restaurant-network
+
+  restaurant-api:
+    build: .
+    container_name: restaurant-api
+    ports:
+      - "8081:8081"
+    depends_on:
+      - restaurant-api-postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://restaurant-api-postgres:5432/restaurant_api
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+    networks:
+      - restaurant-network
+
+volumes:
+  restaurant_postgres_data:
+
+networks:
+  restaurant-network:
+    driver: bridge
