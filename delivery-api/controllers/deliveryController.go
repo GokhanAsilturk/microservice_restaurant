@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/couchbase/gocb/v2"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -114,7 +115,7 @@ func GetDeliveryStatus(c *gin.Context) {
 	var delivery models.Delivery
 
 	// Couchbase'den teslimatı getir
-	err = database.Collection.Get(fmt.Sprintf("delivery::%d", deliveryId), &delivery)
+	result, err := database.Collection.Get(fmt.Sprintf("delivery::%d", deliveryId), nil)
 	if err != nil {
 		if err == gocb.ErrDocumentNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -127,6 +128,16 @@ func GetDeliveryStatus(c *gin.Context) {
 				"message": "Teslimat bilgileri alınamadı: " + err.Error(),
 			})
 		}
+		return
+	}
+
+	// Sonucu decode et
+	err = result.Content(&delivery)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Teslimat verileri işlenemedi: " + err.Error(),
+		})
 		return
 	}
 
@@ -144,12 +155,12 @@ func GetDeliveryStatus(c *gin.Context) {
 func ListDeliveries(c *gin.Context) {
 	var deliveryList []models.Delivery
 
-	// Tüm teslimatları listele
+	// Tüm teslimatları listele - Cluster üzerinden query
 	query := "SELECT meta().id, deliveryId, orderId, customerId, address, status, items, createdAt, updatedAt " +
-		"FROM `delivery-api` " +
+		"FROM `deliveries` " +
 		"WHERE type = 'delivery'"
 
-	rows, err := database.Bucket.Query(query, nil)
+	queryResult, err := database.Cluster.Query(query, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -157,11 +168,11 @@ func ListDeliveries(c *gin.Context) {
 		})
 		return
 	}
-	defer rows.Close()
+	defer queryResult.Close()
 
-	for rows.Next() {
+	for queryResult.Next() {
 		var delivery models.Delivery
-		err := rows.Scan(&delivery.ID, &delivery.DeliveryId, &delivery.OrderId, &delivery.CustomerId, &delivery.Address, &delivery.Status, &delivery.Items, &delivery.CreatedAt, &delivery.UpdatedAt)
+		err := queryResult.Row(&delivery)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
