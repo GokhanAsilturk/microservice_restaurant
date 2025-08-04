@@ -4,6 +4,7 @@ go 1.24.3
 
 require (
 	github.com/couchbase/gocb/v2 v2.6.4
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0

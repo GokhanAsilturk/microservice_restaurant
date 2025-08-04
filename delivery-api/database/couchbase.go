@@ -53,24 +53,20 @@ func InitCouchbase() {
 
 	log.Printf("Bucket'a bağlanılıyor: %s", bucketName)
 
-	// Bucket'a bağlan (bucket'ın var olduğunu varsayıyoruz)
+	// Bucket'a bağlan
 	bucket := cluster.Bucket(bucketName)
 
-	// Bucket'ın hazır olmasını daha uzun süre bekle
-	err = bucket.WaitUntilReady(30*time.Second, nil)
+	// Bucket'ın hazır olmasını bekle (daha kısa süre)
+	err = bucket.WaitUntilReady(15*time.Second, nil)
 	if err != nil {
-		log.Printf("Bucket hazır değil, varsayılan bucket kullanılacak: %v", err)
-		// Eğer deliveries bucket'ı yoksa, default bucket'ı deneyelim
-		bucket = cluster.Bucket("default")
-		err = bucket.WaitUntilReady(10*time.Second, nil)
-		if err != nil {
-			log.Fatal("Hiçbir bucket hazır değil:", err)
-		}
-		bucketName = "default"
+		log.Printf("Bucket bağlantı hatası: %s", err)
+		// Fatal yerine warning vererek devam et
+		log.Println("Couchbase bucket hazır değil, uygulamayı yine de başlatıyoruz...")
+		return
 	}
 
 	Bucket = bucket
 	Collection = bucket.DefaultCollection()
 
-	fmt.Printf("Couchbase bağlantısı başarılı - Host: %s, Bucket: %s\n", couchbaseHost, bucketName)
+	log.Printf("Couchbase bağlantısı başarılı - Host: %s, Bucket: %s", couchbaseHost, bucketName)
 }

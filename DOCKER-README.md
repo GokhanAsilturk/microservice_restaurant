@@ -1,6 +1,6 @@
 # Microservices Docker Kurulumu
 
-Bu proje, mikroservis mimarisinde çalışan üç servisi ve bunların veritabanlarını Docker containerları içinde yönetir.
+Bu proje, mikroservis mimarisinde çalışan üç servisi ve bunlar��n veritabanlarını Docker containerları içinde yönetir.
 
 ## Servisler ve Veritabanları
 
@@ -28,20 +28,27 @@ Bu proje, mikroservis mimarisinde çalışan üç servisi ve bunların veritaban
 - **Container Adları**: 
   - delivery-api
   - delivery-api-couchbasedb
+  - delivery-api-couchbase-init
 
-## Kullanım Komutları
+## Ana Komutlar
 
-### Tüm Servisleri Yönetme
+### Tüm Mikroservisleri Yönetme (Önerilen)
 
 ```powershell
-# Tüm servisleri başlat
+# Tüm servisleri başlat (ana klasörden)
 .\start-all.ps1
 
 # Tüm servisleri durdur
 .\stop-all.ps1
+
+# Manuel olarak başlat
+docker-compose up -d
+
+# Manuel olarak durdur
+docker-compose down
 ```
 
-### Sadece Veritabanlarını Yönetme
+### Alternatif Komutlar
 
 ```powershell
 # Sadece veritabanlarını başlat
@@ -51,7 +58,7 @@ Bu proje, mikroservis mimarisinde çalışan üç servisi ve bunların veritaban
 .\start-apis-only.ps1
 ```
 
-### Tek Tek Servis Yönetimi
+### Tek Tek Servis Yönetimi (İsteğe Bağlı)
 
 #### Order API
 ```powershell
@@ -77,9 +84,13 @@ cd delivery-api
 ## Erişim Noktaları
 
 ### API Endpointleri
-- **Order API**: http://localhost:8080
-- **Restaurant API**: http://localhost:8081
-- **Delivery API**: http://localhost:8082
+- **Order API**: http://localhost:8080 (Swagger UI)
+- **Restaurant API**: http://localhost:8081 (JSON API)
+- **Delivery API**: http://localhost:8082 (JSON API + Swagger)
+
+### Swagger Dokümantasyonu
+- **Order API Swagger**: http://localhost:8080/swagger-ui.html
+- **Delivery API Swagger**: http://localhost:8082/swagger-ui/index.html
 
 ### Veritabanı Yönetim Araçları
 - **Couchbase Admin**: http://localhost:8091
@@ -100,36 +111,47 @@ cd delivery-api
 
 ## Docker Compose Yapısı
 
-- **Ana Klasör**: Tüm servisleri birlikte yönetir
-- **Her Servis Klasörü**: Kendi Docker Compose dosyasına sahip
-- **Ayrı Networkler**: Her servis kendi network'ünde çalışır
+- **Ana Klasör**: Optimize edilmiş tek Docker Compose dosyası ile tüm servisleri yönetir
+- **Healthcheck'ler**: Tüm veritabanları için sağlık kontrolü
+- **Dependency Management**: Servisler veritabanları hazır olduktan sonra başlar
+- **Shared Network**: Tüm servisler microservice-network'te çalışır
 - **Volume Yönetimi**: Veriler kalıcı volume'larda saklanır
 
 ## Önemli Notlar
 
-1. **Port Çakışması**: Servisleri tek tek çalıştırırken port çakışması olmayacak şekilde ayarlanmıştır.
+1. **Container Başlatma Sırası**: 
+   - Önce veritabanları (Elasticsearch, PostgreSQL, Couchbase)
+   - Sonra init container'ları (Couchbase bucket oluşturma)
+   - En son API'ler
 
-2. **Volume Silme**: Servisleri durdurduğunuzda veriler korunur. Verileri silmek için:
+2. **Build Süresi**: İlk çalıştırmada ~5-8 dakika sürebilir (tüm servislerin build edilmesi)
+
+3. **Memory Kullanımı**: Tüm servisler için en az 6GB RAM önerilir
+
+4. **Port Kullanımı**: Tüm portlar otomatik olarak yönetilir, çakışma yoktur
+
+5. **Volume Silme**: Servisleri durdurduğunuzda veriler korunur. Verileri silmek için:
    ```powershell
    docker-compose down -v
    ```
 
-3. **Log Takibi**: Servis loglarını takip etmek için:
+6. **Log Takibi**: Servis loglarını takip etmek için:
    ```powershell
    docker-compose logs -f [servis-adı]
    ```
 
-4. **Container Durumu**: Çalışan containerları görmek için:
+7. **Container Durumu**: Çalışan containerları görmek için:
    ```powershell
-   docker ps
+   docker-compose ps
    ```
 
 ## Sistem Gereksinimleri
 
 - Docker Desktop (Windows)
 - PowerShell 5.0+
-- En az 4GB RAM (tüm servisler için)
-- Portlar: 5432, 5050, 5601, 8080, 8081, 8082, 8091-8096, 9200, 9300, 11210
+- En az 6GB RAM (tüm servisler için)
+- En az 20GB disk alanı
+- Portlar: 5000, 5050, 5432, 5601, 8080, 8081, 8082, 8091-8096, 9200, 9300, 9600, 11210
 
 ## Sorun Giderme
 
@@ -147,4 +169,20 @@ netstat -ano | findstr :[PORT]
 ```powershell
 docker volume ls
 docker volume rm [volume-name]
+```
+
+### Sistem Temizliği
+```powershell
+# Kullanılmayan image ve volume'ları temizle
+docker system prune -a -f
+docker volume prune -f
+```
+
+### Container Yeniden Başlatma
+```powershell
+# Tek container
+docker-compose restart [container-name]
+
+# Tüm containerlar
+docker-compose restart
 ```

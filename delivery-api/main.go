@@ -12,7 +12,7 @@ import (
 // @title           Delivery API
 // @version         1.0
 // @description     Teslimat mikro servisi için API dokümantasyonu
-// @host            localhost:8083
+// @host            localhost:8082
 // @BasePath        /api/delivery
 func main() {
 	fmt.Println("Delivery API başlatılıyor...")
@@ -22,7 +22,7 @@ func main() {
 
 	r := routes.SetupRouter()
 
-	// 8083 portunda sunucuyu başlat
-	log.Println("Sunucu başlatılıyor: http://localhost:8083")
-	r.Run(":8083")
+	// 8082 portunda sunucuyu başlat
+	log.Println("Sunucu başlatılıyor: http://localhost:8082")
+	r.Run(":8082")
 }

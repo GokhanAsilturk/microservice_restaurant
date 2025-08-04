@@ -1,34 +1,4 @@
 services:
-  # Delivery API Services (Port: 8082)
-  delivery-api-couchbasedb:
-    image: couchbase:community-7.6.2
-    container_name: delivery-api-couchbasedb
-    ports:
-      - "8091-8096:8091-8096"
-      - "11210:11210"
-    environment:
-      - COUCHBASE_ADMINISTRATOR_USERNAME=admin
-      - COUCHBASE_ADMINISTRATOR_PASSWORD=password
-    volumes:
-      - delivery_couchbase_data:/opt/couchbase/var
-    networks:
-      - microservice-network
-
-  delivery-api:
-    build: ./delivery-api
-    container_name: delivery-api
-    ports:
-      - "8082:8082"
-    depends_on:
-      - delivery-api-couchbasedb
-    environment:
-      - COUCHBASE_HOST=delivery-api-couchbasedb
-      - COUCHBASE_USERNAME=admin
-      - COUCHBASE_PASSWORD=password
-    networks:
-      - microservice-network
-    restart: on-failure
-
   # Order API Services (Port: 8080)
   order-api-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.0.4
@@ -44,6 +14,12 @@ services:
       - order_elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - microservice-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   order-api-logstash:
     image: docker.elastic.co/logstash/logstash:9.0.4
@@ -52,13 +28,20 @@ services:
       - "5000:5000"
       - "9600:9600"
     depends_on:
-      - order-api-elasticsearch
+      order-api-elasticsearch:
+        condition: service_healthy
     environment:
       - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
     volumes:
       - ./order_api/logstash/config:/usr/share/logstash/pipeline
     networks:
       - microservice-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9600 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   order-api-kibana:
     image: docker.elastic.co/kibana/kibana:9.0.4
@@ -66,11 +49,18 @@ services:
     ports:
       - "5601:5601"
     depends_on:
-      - order-api-elasticsearch
+      order-api-elasticsearch:
+        condition: service_healthy
     environment:
       - ELASTICSEARCH_HOSTS=http://order-api-elasticsearch:9200
     networks:
       - microservice-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   order-api:
     build: ./order_api
@@ -78,8 +68,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - order-api-elasticsearch
-      - order-api-logstash
+      order-api-elasticsearch:
+        condition: service_healthy
+      order-api-logstash:
+        condition: service_healthy
     environment:
       - ELASTICSEARCH_HOST=order-api-elasticsearch
       - ELASTICSEARCH_PORT=9200
@@ -87,6 +79,7 @@ services:
       - LOGSTASH_PORT=5000
     networks:
       - microservice-network
+    restart: on-failure
 
   # Restaurant API Services (Port: 8081)
   restaurant-api-postgres:
@@ -102,6 +95,12 @@ services:
       - restaurant_postgres_data:/var/lib/postgresql/data
     networks:
       - microservice-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d restaurant_api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   restaurant-api-pgadmin:
     image: dpage/pgadmin4
@@ -112,7 +111,8 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - restaurant-api-postgres
+      restaurant-api-postgres:
+        condition: service_healthy
     networks:
       - microservice-network
 
@@ -122,13 +122,67 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - restaurant-api-postgres
+      restaurant-api-postgres:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://restaurant-api-postgres:5432/restaurant_api
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
     networks:
       - microservice-network
+    restart: on-failure
+
+  # Delivery API Services (Port: 8082)
+  delivery-api-couchbasedb:
+    image: couchbase:community-7.6.2
+    container_name: delivery-api-couchbasedb
+    ports:
+      - "8091-8096:8091-8096"
+      - "11210:11210"
+    environment:
+      - COUCHBASE_ADMINISTRATOR_USERNAME=admin
+      - COUCHBASE_ADMINISTRATOR_PASSWORD=password
+    volumes:
+      - delivery_couchbase_data:/opt/couchbase/var
+    networks:
+      - microservice-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8091 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  delivery-api-couchbase-init:
+    image: couchbase:community-7.6.2
+    container_name: delivery-api-couchbase-init
+    depends_on:
+      delivery-api-couchbasedb:
+        condition: service_healthy
+    networks:
+      - microservice-network
+    volumes:
+      - ./delivery-api/init-couchbase.sh:/init-couchbase.sh
+    command: ["bash", "/init-couchbase.sh"]
+    restart: "no"
+
+  delivery-api:
+    build: ./delivery-api
+    container_name: delivery-api
+    ports:
+      - "8082:8082"
+    depends_on:
+      delivery-api-couchbasedb:
+        condition: service_healthy
+      delivery-api-couchbase-init:
+        condition: service_completed_successfully
+    environment:
+      - COUCHBASE_HOST=delivery-api-couchbasedb
+      - COUCHBASE_USERNAME=admin
+      - COUCHBASE_PASSWORD=password
+    networks:
+      - microservice-network
+    restart: on-failure
 
 volumes:
   delivery_couchbase_data:

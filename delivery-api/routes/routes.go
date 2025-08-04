@@ -2,24 +2,40 @@ package routes
 
 import (
 	"delivery-api/controllers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"time"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// CORS ayarları
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-		c.Next()
+	// CORS middleware'ini güncelliyoruz
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
+	config.MaxAge = 12 * time.Hour
+	r.Use(cors.New(config))
+
+	// Ana sayfa endpoint'i
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "OK",
+			"message": "Delivery API çalışıyor",
+			"version": "1.0.0",
+			"port":    "8082",
+		})
+	})
+
+	// Health endpoint'i
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "UP",
+			"api":    "Delivery API",
+		})
 	})
 
 	// Swagger Dokümantasyon endpoint'i
