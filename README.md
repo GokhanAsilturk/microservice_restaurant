@@ -72,7 +72,8 @@ microservice_test/
 
 ## Geliştirme
 
-Her bir mikroservis kendi bağımsız teknoloji yığınını kullanır ve kendi veritabanı ile çalışır. Servisler arasındaki iletişim REST API üzerinden sağlanır.
+Her bir mikroservis kendi bağımsız teknoloji yığınını kullanır ve kendi veritabanı ile çalışır. Servisler arasındaki
+iletişim REST API üzerinden sağlanır.
 
 ## Lisans
 

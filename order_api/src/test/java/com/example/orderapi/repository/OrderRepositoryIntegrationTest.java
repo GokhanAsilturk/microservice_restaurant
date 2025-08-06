@@ -4,24 +4,23 @@ import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.order.OrderItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * OrderRepository Integration Test
- *
+ * <p>
  * Bu test sınıfı repository işlemlerini mock'layarak test eder.
  * Elasticsearch bağımlılığını mock'lar ile çözer.
  */

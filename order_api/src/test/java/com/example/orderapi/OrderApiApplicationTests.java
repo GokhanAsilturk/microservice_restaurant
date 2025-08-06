@@ -1,7 +1,6 @@
 package com.example.orderapi;
 
 import com.example.orderapi.repository.OrderRepository;
-import com.example.orderapi.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
@@ -14,15 +13,15 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * Order API Application Tests
- *
+ * <p>
  * Bu test sınıfı Spring Boot uygulamasının context'inin başarıyla yüklendiğini test eder.
  * Tüm bağımlılıkları mock'layarak hızlı context loading sağlar.
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @EnableAutoConfiguration(exclude = {
-    ElasticsearchRestClientAutoConfiguration.class,
-    ElasticsearchDataAutoConfiguration.class
+        ElasticsearchRestClientAutoConfiguration.class,
+        ElasticsearchDataAutoConfiguration.class
 })
 class OrderApiApplicationTests {
 

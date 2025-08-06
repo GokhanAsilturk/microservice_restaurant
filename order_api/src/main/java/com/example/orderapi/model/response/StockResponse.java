@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Restaurant API'den gelen stok kontrol yanıt modeli
- *
+ * <p>
  * Bu sınıf Restaurant API'nin stok kontrol ve stok azaltma
  * işlemlerinden gelen yanıtları temsil eder.
  */
@@ -24,6 +24,7 @@ public class StockResponse {
 
     /**
      * Stok durumu kontrolü için helper method
+     *
      * @return stok uygun mu?
      */
     public boolean isAvailable() {

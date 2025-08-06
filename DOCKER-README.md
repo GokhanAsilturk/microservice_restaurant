@@ -5,30 +5,33 @@ Bu proje, mikroservis mimarisinde çalışan üç servisi ve bunlar��n verit
 ## Servisler ve Veritabanları
 
 ### 1. Order API (Java/Spring Boot)
+
 - **Port**: 8080
 - **Stack**: ELK (Elasticsearch, Logstash, Kibana) 9.0.4
 - **Container Adları**:
-  - order-api
-  - order-api-elasticsearch
-  - order-api-logstash
-  - order-api-kibana
+    - order-api
+    - order-api-elasticsearch
+    - order-api-logstash
+    - order-api-kibana
 
 ### 2. Restaurant API (Kotlin/Spring Boot)
+
 - **Port**: 8081
 - **Database**: PostgreSQL 15-alpine
 - **Admin Tool**: pgAdmin4
 - **Container Adları**:
-  - restaurant-api
-  - restaurant-api-postgres
-  - restaurant-api-pgadmin
+    - restaurant-api
+    - restaurant-api-postgres
+    - restaurant-api-pgadmin
 
 ### 3. Delivery API (Go)
+
 - **Port**: 8082
 - **Database**: Couchbase Community 7.6.2
-- **Container Adları**: 
-  - delivery-api
-  - delivery-api-couchbasedb
-  - delivery-api-couchbase-init
+- **Container Adları**:
+    - delivery-api
+    - delivery-api-couchbasedb
+    - delivery-api-couchbase-init
 
 ## Ana Komutlar
 
@@ -61,6 +64,7 @@ docker-compose down
 ### Tek Tek Servis Yönetimi (İsteğe Bağlı)
 
 #### Order API
+
 ```powershell
 cd order_api
 .\start-order.ps1       # Order API + ELK Stack
@@ -68,6 +72,7 @@ cd order_api
 ```
 
 #### Restaurant API
+
 ```powershell
 cd restaurant-api
 .\start-restaurant.ps1  # Restaurant API + PostgreSQL + pgAdmin
@@ -75,6 +80,7 @@ cd restaurant-api
 ```
 
 #### Delivery API
+
 ```powershell
 cd delivery-api
 .\start-delivery.ps1    # Delivery API + Couchbase
@@ -84,29 +90,33 @@ cd delivery-api
 ## Erişim Noktaları
 
 ### API Endpointleri
+
 - **Order API**: http://localhost:8080 (Swagger UI)
 - **Restaurant API**: http://localhost:8081 (JSON API)
 - **Delivery API**: http://localhost:8082 (JSON API + Swagger)
 
 ### Swagger Dokümantasyonu
+
 - **Order API Swagger**: http://localhost:8080/swagger-ui.html
 - **Delivery API Swagger**: http://localhost:8082/swagger-ui/index.html
 
 ### Veritabanı Yönetim Araçları
+
 - **Couchbase Admin**: http://localhost:8091
-  - Kullanıcı: admin
-  - Şifre: password
+    - Kullanıcı: admin
+    - Şifre: password
 - **Kibana (Elasticsearch UI)**: http://localhost:5601
 - **pgAdmin**: http://localhost:5050
-  - Email: admin@admin.com
-  - Şifre: admin
+    - Email: admin@admin.com
+    - Şifre: admin
 
 ### Direkt Veritabanı Bağlantıları
+
 - **Elasticsearch**: http://localhost:9200
 - **PostgreSQL**: localhost:5432
-  - Kullanıcı: postgres
-  - Şifre: 1234
-  - Veritabanı: restaurant_api
+    - Kullanıcı: postgres
+    - Şifre: 1234
+    - Veritabanı: restaurant_api
 - **Logstash**: localhost:5000
 
 ## Docker Compose Yapısı
@@ -119,10 +129,10 @@ cd delivery-api
 
 ## Önemli Notlar
 
-1. **Container Başlatma Sırası**: 
-   - Önce veritabanları (Elasticsearch, PostgreSQL, Couchbase)
-   - Sonra init container'ları (Couchbase bucket oluşturma)
-   - En son API'ler
+1. **Container Başlatma Sırası**:
+    - Önce veritabanları (Elasticsearch, PostgreSQL, Couchbase)
+    - Sonra init container'ları (Couchbase bucket oluşturma)
+    - En son API'ler
 
 2. **Build Süresi**: İlk çalıştırmada ~5-8 dakika sürebilir (tüm servislerin build edilmesi)
 
@@ -156,22 +166,26 @@ cd delivery-api
 ## Sorun Giderme
 
 ### Container Başlamıyorsa
+
 ```powershell
 docker-compose logs [container-name]
 ```
 
 ### Port Kullanımda Hatası
+
 ```powershell
 netstat -ano | findstr :[PORT]
 ```
 
 ### Volume Sorunları
+
 ```powershell
 docker volume ls
 docker volume rm [volume-name]
 ```
 
 ### Sistem Temizliği
+
 ```powershell
 # Kullanılmayan image ve volume'ları temizle
 docker system prune -a -f
@@ -179,6 +193,7 @@ docker volume prune -f
 ```
 
 ### Container Yeniden Başlatma
+
 ```powershell
 # Tek container
 docker-compose restart [container-name]

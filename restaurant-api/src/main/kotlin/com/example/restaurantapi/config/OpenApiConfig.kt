@@ -14,18 +14,26 @@ class OpenApiConfig {
     @Bean
     fun restaurantApiOpenAPI(): OpenAPI {
         return OpenAPI()
-                .info(Info()
-                        .title("Restaurant API")
-                        .description("Restoran stok yönetimi mikroservis API")
-                        .version("1.0")
-                        .contact(Contact()
-                                .name("Microservice Team")
-                                .email("support@example.com"))
-                        .license(License()
-                                .name("Apache 2.0")
-                                .url("http://www.apache.org/licenses/LICENSE-2.0.html")))
-                .servers(listOf(
-                        Server().url("http://localhost:8082").description("Development Server")
-                ))
+            .info(
+                Info()
+                    .title("Restaurant API")
+                    .description("Restoran stok yönetimi mikroservis API")
+                    .version("1.0")
+                    .contact(
+                        Contact()
+                            .name("Microservice Team")
+                            .email("support@example.com")
+                    )
+                    .license(
+                        License()
+                            .name("Apache 2.0")
+                            .url("http://www.apache.org/licenses/LICENSE-2.0.html")
+                    )
+            )
+            .servers(
+                listOf(
+                    Server().url("http://localhost:8082").description("Development Server")
+                )
+            )
     }
 }

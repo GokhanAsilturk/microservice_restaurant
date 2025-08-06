@@ -15,7 +15,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -37,7 +37,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9600 || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -56,7 +56,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -96,7 +96,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d restaurant_api"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d restaurant_api" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -147,7 +147,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8091 || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8091 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -163,7 +163,7 @@ services:
       - microservice-network
     volumes:
       - ./delivery-api/init-couchbase.sh:/init-couchbase.sh
-    command: ["bash", "/init-couchbase.sh"]
+    command: [ "bash", "/init-couchbase.sh" ]
     restart: "no"
 
   delivery-api:

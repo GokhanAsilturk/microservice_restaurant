@@ -52,7 +52,7 @@ definitions:
     type: object
 host: localhost:8083
 info:
-  contact: {}
+  contact: { }
   description: Teslimat mikro servisi için API dokümantasyonu
   title: Delivery API
   version: "1.0"
@@ -60,10 +60,10 @@ paths:
   /api/delivery/list:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Sistemdeki tüm teslimatları liste halinde döndürür
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -73,22 +73,22 @@ paths:
             type: array
       summary: Tüm teslimatları listeler
       tags:
-      - deliveries
+        - deliveries
   /api/delivery/start:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Müşteri bilgileri ve sipariş detayları ile yeni bir teslimat kaydı
         oluşturur
       parameters:
-      - description: Teslimat İsteği
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.DeliveryRequest'
+        - description: Teslimat İsteği
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/models.DeliveryRequest'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -100,20 +100,20 @@ paths:
             $ref: '#/definitions/models.DeliveryResponse'
       summary: Yeni bir teslimat başlatır
       tags:
-      - deliveries
+        - deliveries
   /api/delivery/status/{id}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Teslimat ID'si ile teslimat durumunu ve detaylarını getirir
       parameters:
-      - description: Teslimat ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: Teslimat ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -126,5 +126,5 @@ paths:
             type: object
       summary: Teslimat durumunu sorgular
       tags:
-      - deliveries
+        - deliveries
 swagger: "2.0"

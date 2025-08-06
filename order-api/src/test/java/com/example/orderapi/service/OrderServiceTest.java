@@ -12,7 +12,7 @@ void placeOrder_ShouldHandleDeliveryFailure_WhenDeliveryApiFails() {
     stockResponse.setAvailable(true);
     ResponseEntity<StockResponse> responseEntity = ResponseEntity.ok(stockResponse);
     when(inventoryClient.checkStock(orderRequest.getProductId(), orderRequest.getQuantity()))
-        .thenReturn(responseEntity);
+            .thenReturn(responseEntity);
 
     // Delivery service mockunu yapılandır - bu kısım zaten başarısız olacak şekilde ayarlanmış olabilir
 

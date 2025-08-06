@@ -3,10 +3,8 @@ package com.example.orderapi.service;
 import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.order.OrderItem;
 import com.example.orderapi.model.order.OrderItemDto;
-import com.example.orderapi.model.request.DeliveryRequest;
 import com.example.orderapi.model.request.OrderRequest;
 import com.example.orderapi.model.request.StockRequest;
-import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.model.response.StockResponse;
 import com.example.orderapi.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.quality.Strictness;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -29,15 +27,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.when;
 
 /**
  * OrderService için Unit Test Sınıfı
- *
+ * <p>
  * Bu test sınıfı business logic'i test eder:
  * - Service katmanındaki iş kurallarını test eder
  * - Repository ve external API'lerle etkileşimleri doğrular

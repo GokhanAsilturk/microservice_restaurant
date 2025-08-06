@@ -1,197 +1,197 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "description": "Teslimat mikro servisi için API dokümantasyonu",
-        "title": "Delivery API",
-        "contact": {},
-        "version": "1.0"
-    },
-    "host": "localhost:8083",
-    "basePath": "/api/delivery",
-    "paths": {
-        "/api/delivery/list": {
-            "get": {
-                "description": "Sistemdeki tüm teslimatları liste halinde döndürür",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "deliveries"
-                ],
-                "summary": "Tüm teslimatları listeler",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Delivery"
-                            }
-                        }
-                    }
-                }
+  "swagger": "2.0",
+  "info": {
+    "description": "Teslimat mikro servisi için API dokümantasyonu",
+    "title": "Delivery API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "localhost:8083",
+  "basePath": "/api/delivery",
+  "paths": {
+    "/api/delivery/list": {
+      "get": {
+        "description": "Sistemdeki tüm teslimatları liste halinde döndürür",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Tüm teslimatları listeler",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/models.Delivery"
+              }
             }
-        },
-        "/api/delivery/start": {
-            "post": {
-                "description": "Müşteri bilgileri ve sipariş detayları ile yeni bir teslimat kaydı oluşturur",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "deliveries"
-                ],
-                "summary": "Yeni bir teslimat başlatır",
-                "parameters": [
-                    {
-                        "description": "Teslimat İsteği",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DeliveryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.DeliveryResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.DeliveryResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/delivery/status/{id}": {
-            "get": {
-                "description": "Teslimat ID'si ile teslimat durumunu ve detaylarını getirir",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "deliveries"
-                ],
-                "summary": "Teslimat durumunu sorgular",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Teslimat ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Delivery"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
+          }
         }
+      }
     },
-    "definitions": {
-        "models.Delivery": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "customerId": {
-                    "type": "integer"
-                },
-                "deliveryId": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OrderItem"
-                    }
-                },
-                "orderId": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
+    "/api/delivery/start": {
+      "post": {
+        "description": "Müşteri bilgileri ve sipariş detayları ile yeni bir teslimat kaydı oluşturur",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Yeni bir teslimat başlatır",
+        "parameters": [
+          {
+            "description": "Teslimat İsteği",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/models.DeliveryRequest"
             }
-        },
-        "models.DeliveryRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "customerId": {
-                    "type": "integer"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.OrderItem"
-                    }
-                },
-                "orderId": {
-                    "type": "string"
-                }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.DeliveryResponse"
             }
-        },
-        "models.DeliveryResponse": {
-            "type": "object",
-            "properties": {
-                "deliveryId": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
-                }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.DeliveryResponse"
             }
-        },
-        "models.OrderItem": {
-            "type": "object",
-            "properties": {
-                "price": {
-                    "type": "number"
-                },
-                "productId": {
-                    "type": "integer"
-                },
-                "productName": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "integer"
-                }
-            }
+          }
         }
+      }
+    },
+    "/api/delivery/status/{id}": {
+      "get": {
+        "description": "Teslimat ID'si ile teslimat durumunu ve detaylarını getirir",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Teslimat durumunu sorgular",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Teslimat ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.Delivery"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
     }
+  },
+  "definitions": {
+    "models.Delivery": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "customerId": {
+          "type": "integer"
+        },
+        "deliveryId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.OrderItem"
+          }
+        },
+        "orderId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "models.DeliveryRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "customerId": {
+          "type": "integer"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.OrderItem"
+          }
+        },
+        "orderId": {
+          "type": "string"
+        }
+      }
+    },
+    "models.DeliveryResponse": {
+      "type": "object",
+      "properties": {
+        "deliveryId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      }
+    },
+    "models.OrderItem": {
+      "type": "object",
+      "properties": {
+        "price": {
+          "type": "number"
+        },
+        "productId": {
+          "type": "integer"
+        },
+        "productName": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer"
+        }
+      }
+    }
+  }
 }
