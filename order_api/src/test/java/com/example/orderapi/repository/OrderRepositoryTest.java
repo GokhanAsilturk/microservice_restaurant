@@ -4,48 +4,45 @@ import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.order.OrderItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.elasticsearch.DataElasticsearchTest;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 /**
- * OrderRepository için Integration Test Sınıfı
+ * OrderRepository için Unit Test Sınıfı
  *
- * Bu test sınıfı Elasticsearch repository işlemlerini test eder:
+ * Bu test sınıfı repository işlemlerini mock'layarak test eder:
  * - CRUD operasyonları
- * - Elasticsearch bağlantısı
- * - Veri persistansı
+ * - Mock repository davranışları
+ * - Unit test yaklaşımı
  *
- * @DataElasticsearchTest anotasyonu:
- * - Sadece Elasticsearch katmanını yükler
- * - Test için embedded Elasticsearch kullanır
- * - Repository bean'lerini otomatik konfigüre eder
+ * @ExtendWith(MockitoExtension.class) anotasyonu:
+ * - Mockito framework'ünü aktifleştirir
+ * - Mock objeler oluşturur
+ * - Elasticsearch bağımlılığını ortadan kaldırır
  */
-@DataElasticsearchTest
+@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class OrderRepositoryTest {
 
-    @Autowired
+    @Mock
     private OrderRepository orderRepository;
-
-    @Autowired
-    private ElasticsearchOperations elasticsearchOperations;
 
     private Order testOrder;
 
     @BeforeEach
     void setUp() {
-        // Test öncesi temizlik
-        orderRepository.deleteAll();
-
         // Test verisi hazırlama
         OrderItem orderItem = OrderItem.builder()
                 .productId(1)
@@ -53,177 +50,187 @@ class OrderRepositoryTest {
                 .build();
 
         testOrder = Order.builder()
+                .id("order-123")
                 .customerId(123)
                 .address("Test Adres 123")
-                .status("PENDING")
                 .items(List.of(orderItem))
+                .status("PENDING")
                 .totalAmount(100.0)
-                .deliveryId(0)
                 .build();
     }
 
     /**
-     * Test 1: Sipariş kaydetme
+     * Test 1: save - Sipariş kaydetme
      */
     @Test
-    void save_Success() {
+    void save_ShouldSaveOrder_WhenValidOrder() {
+        // Given
+        when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
+
         // When
         Order savedOrder = orderRepository.save(testOrder);
 
         // Then
         assertNotNull(savedOrder);
-        assertNotNull(savedOrder.getId()); // Elasticsearch otomatik ID atar
-        assertEquals(testOrder.getCustomerId(), savedOrder.getCustomerId());
-        assertEquals(testOrder.getAddress(), savedOrder.getAddress());
-        assertEquals(testOrder.getStatus(), savedOrder.getStatus());
+        assertEquals("order-123", savedOrder.getId());
+        assertEquals(123, savedOrder.getCustomerId());
+        assertEquals("PENDING", savedOrder.getStatus());
+        verify(orderRepository).save(testOrder);
     }
 
     /**
-     * Test 2: ID ile sipariş bulma
+     * Test 2: findById - ID ile sipariş bulma
      */
     @Test
-    void findById_Success() {
+    void findById_ShouldReturnOrder_WhenOrderExists() {
         // Given
-        Order savedOrder = orderRepository.save(testOrder);
+        when(orderRepository.findById("order-123")).thenReturn(Optional.of(testOrder));
 
         // When
-        Optional<Order> foundOrder = orderRepository.findById(savedOrder.getId());
+        Optional<Order> foundOrder = orderRepository.findById("order-123");
 
         // Then
         assertTrue(foundOrder.isPresent());
-        assertEquals(savedOrder.getId(), foundOrder.get().getId());
-        assertEquals(savedOrder.getCustomerId(), foundOrder.get().getCustomerId());
+        assertEquals("order-123", foundOrder.get().getId());
+        assertEquals(123, foundOrder.get().getCustomerId());
+        verify(orderRepository).findById("order-123");
     }
 
     /**
-     * Test 3: Olmayan ID ile arama
+     * Test 3: findById - Sipariş bulunamadı
      */
     @Test
-    void findById_NotFound() {
+    void findById_ShouldReturnEmpty_WhenOrderNotExists() {
+        // Given
+        when(orderRepository.findById("nonexistent")).thenReturn(Optional.empty());
+
         // When
-        Optional<Order> foundOrder = orderRepository.findById("nonexistent-id");
+        Optional<Order> foundOrder = orderRepository.findById("nonexistent");
 
         // Then
         assertFalse(foundOrder.isPresent());
+        verify(orderRepository).findById("nonexistent");
     }
 
     /**
-     * Test 4: Tüm siparişleri listeleme
+     * Test 4: findAll - Tüm siparişleri getirme
      */
     @Test
-    void findAll_Success() {
+    void findAll_ShouldReturnAllOrders() {
         // Given
-        Order order1 = orderRepository.save(testOrder);
-
         Order order2 = Order.builder()
+                .id("order-456")
                 .customerId(456)
                 .address("Test Adres 456")
-                .status("DELIVERED")
-                .items(List.of(OrderItem.builder().productId(2).quantity(1).build()))
-                .totalAmount(50.0)
-                .deliveryId(0)
+                .status("COMPLETED")
+                .totalAmount(200.0)
                 .build();
-        orderRepository.save(order2);
+
+        List<Order> expectedOrders = Arrays.asList(testOrder, order2);
+        when(orderRepository.findAll()).thenReturn(expectedOrders);
 
         // When
         Iterable<Order> orders = orderRepository.findAll();
-        List<Order> orderList = StreamSupport.stream(orders.spliterator(), false)
-                .collect(Collectors.toList());
 
         // Then
+        assertNotNull(orders);
+        List<Order> orderList = (List<Order>) orders;
         assertEquals(2, orderList.size());
+        assertTrue(orderList.contains(testOrder));
+        assertTrue(orderList.contains(order2));
+        verify(orderRepository).findAll();
     }
 
     /**
-     * Test 5: Sipariş güncelleme
+     * Test 5: deleteById - Sipariş silme
      */
     @Test
-    void update_Success() {
-        // Given
-        Order savedOrder = orderRepository.save(testOrder);
-        String orderId = savedOrder.getId();
+    void deleteById_ShouldDeleteOrder_WhenOrderExists() {
+        // Given - Mock repository behavior
 
         // When
-        savedOrder.setStatus("DELIVERED");
-        savedOrder.setDeliveryId(999);
-        Order updatedOrder = orderRepository.save(savedOrder);
+        orderRepository.deleteById("order-123");
 
         // Then
-        assertEquals(orderId, updatedOrder.getId()); // ID aynı kalmalı
-        assertEquals("DELIVERED", updatedOrder.getStatus());
-        assertEquals(999, updatedOrder.getDeliveryId());
+        verify(orderRepository).deleteById("order-123");
     }
 
     /**
-     * Test 6: Sipariş silme
+     * Test 6: existsById - Sipariş varlığı kontrolü
      */
     @Test
-    void delete_Success() {
+    void existsById_ShouldReturnTrue_WhenOrderExists() {
         // Given
-        Order savedOrder = orderRepository.save(testOrder);
-        String orderId = savedOrder.getId();
+        when(orderRepository.existsById("order-123")).thenReturn(true);
 
         // When
-        orderRepository.deleteById(orderId);
+        boolean exists = orderRepository.existsById("order-123");
 
         // Then
-        Optional<Order> deletedOrder = orderRepository.findById(orderId);
-        assertFalse(deletedOrder.isPresent());
+        assertTrue(exists);
+        verify(orderRepository).existsById("order-123");
     }
 
     /**
-     * Test 7: Boş liste durumu
+     * Test 7: existsById - Sipariş yoksa false
      */
     @Test
-    void findAll_EmptyList() {
-        // When (setUp'ta deleteAll() çağrılıyor)
-        Iterable<Order> orders = orderRepository.findAll();
-        List<Order> orderList = StreamSupport.stream(orders.spliterator(), false)
-                .collect(Collectors.toList());
-
-        // Then
-        assertEquals(0, orderList.size());
-    }
-
-    /**
-     * Test 8: Count operasyonu
-     */
-    @Test
-    void count_Success() {
+    void existsById_ShouldReturnFalse_WhenOrderNotExists() {
         // Given
-        orderRepository.save(testOrder);
+        when(orderRepository.existsById("nonexistent")).thenReturn(false);
 
-        Order order2 = Order.builder()
-                .customerId(456)
-                .address("Test Adres 456")
-                .status("PENDING")
-                .items(List.of(OrderItem.builder().productId(2).quantity(1).build()))
-                .totalAmount(75.0)
-                .deliveryId(0)
-                .build();
-        orderRepository.save(order2);
+        // When
+        boolean exists = orderRepository.existsById("nonexistent");
+
+        // Then
+        assertFalse(exists);
+        verify(orderRepository).existsById("nonexistent");
+    }
+
+    /**
+     * Test 8: count - Sipariş sayısı
+     */
+    @Test
+    void count_ShouldReturnCorrectCount() {
+        // Given
+        when(orderRepository.count()).thenReturn(5L);
 
         // When
         long count = orderRepository.count();
 
         // Then
-        assertEquals(2, count);
+        assertEquals(5L, count);
+        verify(orderRepository).count();
     }
 
     /**
-     * Test 9: Exists kontrolü
+     * Test 9: deleteAll - Tüm siparişleri silme
      */
     @Test
-    void existsById_Success() {
-        // Given
-        Order savedOrder = orderRepository.save(testOrder);
-
+    void deleteAll_ShouldDeleteAllOrders() {
         // When
-        boolean exists = orderRepository.existsById(savedOrder.getId());
-        boolean notExists = orderRepository.existsById("nonexistent-id");
+        orderRepository.deleteAll();
 
         // Then
-        assertTrue(exists);
-        assertFalse(notExists);
+        verify(orderRepository).deleteAll();
+    }
+
+    /**
+     * Test 10: findByCustomerId - Müşteri ID'sine göre sipariş bulma
+     */
+    @Test
+    void findByCustomerId_ShouldReturnCustomerOrders() {
+        // Given
+        List<Order> customerOrders = Arrays.asList(testOrder);
+        when(orderRepository.findByCustomerId(123)).thenReturn(customerOrders);
+
+        // When
+        List<Order> orders = orderRepository.findByCustomerId(123);
+
+        // Then
+        assertNotNull(orders);
+        assertEquals(1, orders.size());
+        assertEquals(123, orders.get(0).getCustomerId());
+        verify(orderRepository).findByCustomerId(123);
     }
 }

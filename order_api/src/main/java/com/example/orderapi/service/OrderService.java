@@ -361,4 +361,19 @@ public class OrderService {
             System.err.println("Bekleyen teslimatları yeniden deneme hatası: " + e.getMessage());
         }
     }
+
+    /**
+     * Müşteri ID'sine göre siparişleri getirir
+     * Repository'nin findByCustomerId metodunu kullanır
+     * @param customerId Müşteri ID'si
+     * @return Müşteriye ait siparişler listesi
+     */
+    public List<Order> getOrdersByCustomerId(int customerId) {
+        try {
+            return orderRepository.findByCustomerId(customerId);
+        } catch (Exception e) {
+            System.err.println("Müşteri siparişleri getirme hatası: " + e.getMessage());
+            return List.of(); // Boş liste döndür
+        }
+    }
 }
