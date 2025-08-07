@@ -148,10 +148,10 @@ services:
       - microservice-network
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8091 || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
+      interval: 45s
+      timeout: 20s
+      retries: 15
+      start_period: 240s
 
   delivery-api-couchbase-init:
     image: couchbase:community-7.6.2
@@ -174,8 +174,6 @@ services:
     depends_on:
       delivery-api-couchbasedb:
         condition: service_healthy
-      delivery-api-couchbase-init:
-        condition: service_completed_successfully
     environment:
       - COUCHBASE_HOST=delivery-api-couchbasedb
       - COUCHBASE_USERNAME=admin

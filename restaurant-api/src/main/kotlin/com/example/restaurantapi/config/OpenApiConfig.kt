@@ -32,7 +32,7 @@ class OpenApiConfig {
             )
             .servers(
                 listOf(
-                    Server().url("http://localhost:8082").description("Development Server")
+                    Server().url("http://localhost:8081").description("Development Server")
                 )
             )
     }

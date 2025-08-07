@@ -12,11 +12,11 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// CORS middleware'ini güncelliyoruz
+	// CORS middleware - production için daha güvenli ayarlar
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:8080", "http://localhost:8081", "http://localhost:8082"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	config.MaxAge = 12 * time.Hour
 	r.Use(cors.New(config))
 
@@ -27,20 +27,12 @@ func SetupRouter() *gin.Engine {
 			"message": "Delivery API çalışıyor",
 			"version": "1.0.0",
 			"port":    "8082",
-		})
-	})
-
-	// Health endpoint'i
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "UP",
-			"api":    "Delivery API",
+			"swagger": "/swagger/index.html",
 		})
 	})
 
 	// Swagger Dokümantasyon endpoint'i
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/swagger-ui/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API endpoint'leri
 	api := r.Group("/api/delivery")
