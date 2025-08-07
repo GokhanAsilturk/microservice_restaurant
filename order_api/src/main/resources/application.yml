@@ -13,8 +13,8 @@ spring:
 
 restaurant:
   api:
-    url: http://localhost:8081/api
+    url: ${RESTAURANT_API_URL:http://restaurant-api:8081/api}
 
 delivery:
   api:
-    url: http://localhost:8082/api/delivery
+    url: ${DELIVERY_API_URL:http://delivery-api:8082/api/delivery}

@@ -28,7 +28,8 @@ public class OrderRequest {
                 address(address).
                 items(convertToOrderItems(items)).
                 totalAmount(calculateTotalAmount(items)).
-                status("CONFIRMED").build();
+                status("CONFIRMED").
+                orderDate(java.time.LocalDateTime.now().toString()).build();
     }
 
     private Double calculateTotalAmount(List<OrderItemDto> items) {

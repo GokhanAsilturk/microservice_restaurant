@@ -7,6 +7,7 @@ import com.example.orderapi.model.request.DeliveryRequest;
 import com.example.orderapi.model.request.OrderRequest;
 import com.example.orderapi.model.request.StockRequest;
 import com.example.orderapi.model.response.DeliveryResponse;
+import com.example.orderapi.model.response.StockResponse;
 import com.example.orderapi.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -257,7 +258,10 @@ public class OrderService {
      */
     public List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         try {
-            Criteria criteria = new Criteria("orderDate").greaterThanEqual(startDate).lessThanEqual(endDate);
+            String startDateStr = startDate.toString();
+            String endDateStr = endDate.toString();
+
+            Criteria criteria = new Criteria("orderDate").greaterThanEqual(startDateStr).lessThanEqual(endDateStr);
             CriteriaQuery query = new CriteriaQuery(criteria);
 
             SearchHits<Order> searchHits = elasticsearchOperations.search(query, Order.class);

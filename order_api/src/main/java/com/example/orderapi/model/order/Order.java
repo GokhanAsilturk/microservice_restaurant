@@ -27,7 +27,7 @@ public class Order {
     @Field(type = FieldType.Text)
     private String address;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Keyword)
     private String status;
 
     @Field(type = FieldType.Nested)
@@ -38,4 +38,7 @@ public class Order {
 
     @Field(type = FieldType.Integer)
     private int deliveryId;
+
+    @Field(type = FieldType.Keyword)
+    private String orderDate;
 }

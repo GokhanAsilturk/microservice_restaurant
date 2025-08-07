@@ -72,11 +72,17 @@ services:
         condition: service_healthy
       order-api-logstash:
         condition: service_healthy
+      restaurant-api:
+        condition: service_started
+      delivery-api:
+        condition: service_started
     environment:
       - ELASTICSEARCH_HOST=order-api-elasticsearch
       - ELASTICSEARCH_PORT=9200
       - LOGSTASH_HOST=order-api-logstash
       - LOGSTASH_PORT=5000
+      - RESTAURANT_API_URL=http://restaurant-api:8081/api
+      - DELIVERY_API_URL=http://delivery-api:8082/api/delivery
     networks:
       - microservice-network
     restart: on-failure
