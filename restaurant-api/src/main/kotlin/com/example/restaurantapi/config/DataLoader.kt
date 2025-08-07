@@ -12,17 +12,21 @@ class DataLoader {
     @Bean
     fun initDatabase(productRepository: ProductRepository): CommandLineRunner {
         return CommandLineRunner { args ->
-            // Örnek ürünleri ekleyelim
-            val products = listOf(
-                Product(name = "Hamburger", price = 50.0, stockQuantity = 20),
-                Product(name = "Pizza", price = 70.0, stockQuantity = 15),
-                Product(name = "Lahmacun", price = 30.0, stockQuantity = 25),
-                Product(name = "Cola", price = 10.0, stockQuantity = 50),
-                Product(name = "Ayran", price = 8.0, stockQuantity = 40)
-            )
+            // Sadece veritabanı boşsa default ürünleri ekle
+            if (productRepository.count() == 0L) {
+                val products = listOf(
+                    Product(name = "Hamburger", price = 50.0, stockQuantity = 20),
+                    Product(name = "Pizza", price = 70.0, stockQuantity = 15),
+                    Product(name = "Lahmacun", price = 30.0, stockQuantity = 25),
+                    Product(name = "Cola", price = 10.0, stockQuantity = 50),
+                    Product(name = "Ayran", price = 8.0, stockQuantity = 40)
+                )
 
-            productRepository.saveAll(products)
-            println("Örnek ürünler veritabanına yüklendi. Toplam ürün sayısı: ${productRepository.count()}")
+                productRepository.saveAll(products)
+                println("Örnek ürünler veritabanına yüklendi. Toplam ürün sayısı: ${productRepository.count()}")
+            } else {
+                println("Veritabanında zaten ürünler mevcut. Mevcut ürün sayısı: ${productRepository.count()}")
+            }
         }
     }
 }

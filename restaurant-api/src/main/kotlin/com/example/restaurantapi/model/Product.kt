@@ -10,7 +10,7 @@ data class Product(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     @field:NotBlank(message = "Ürün adı boş olamaz")
     @field:Size(min = 2, max = 100, message = "Ürün adı 2-100 karakter arasında olmalıdır")
     val name: String,
