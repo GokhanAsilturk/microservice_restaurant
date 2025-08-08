@@ -1,0 +1,282 @@
+{
+	"info": {
+		"_postman_id": "restaurant-api-collection",
+		"name": "Restaurant API Collection",
+		"description": "Restoran menüsü ve stok yönetimi API'si için test collection'ı",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/products",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Tüm ürünleri listeler"
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/products/1",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "ID'ye göre ürün getir"
+					}
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Margherita Pizza\",\n    \"description\": \"Klasik domates sos ve mozzarella peyniri\",\n    \"price\": 45.90,\n    \"category\": \"Pizza\",\n    \"stockQuantity\": 100\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/products",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Yeni ürün oluştur"
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Pepperoni Pizza\",\n    \"description\": \"Pepperoni ve mozzarella peyniri\",\n    \"price\": 52.90,\n    \"category\": \"Pizza\",\n    \"stockQuantity\": 80\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/products/1",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "Ürün güncelle"
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/products/1",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "Ürün sil"
+					}
+				}
+			]
+		},
+		{
+			"name": "Stock Operations",
+			"item": [
+				{
+					"name": "Get Stock by Product ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/stock/1",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"1"
+							]
+						},
+						"description": "Ürün stok miktarını getir"
+					}
+				},
+				{
+					"name": "Check Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"requiredQuantity\": 2\n        },\n        {\n            \"productId\": 2,\n            \"requiredQuantity\": 1\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/stock/check",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"check"
+							]
+						},
+						"description": "Çoklu ürün stok kontrolü"
+					}
+				},
+				{
+					"name": "Reduce Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"quantity\": 2\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/stock/reduce",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"reduce"
+							]
+						},
+						"description": "Stok miktarını azalt"
+					}
+				},
+				{
+					"name": "Increase Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"quantity\": 5\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_base_url}}/api/stock/increase",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"api",
+								"stock",
+								"increase"
+							]
+						},
+						"description": "Stok miktarını artır"
+					}
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/actuator/health",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						},
+						"description": "Servis sağlık durumu"
+					}
+				},
+				{
+					"name": "H2 Console Access",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_base_url}}/h2-console",
+							"host": [
+								"{{restaurant_base_url}}"
+							],
+							"path": [
+								"h2-console"
+							]
+						},
+						"description": "H2 veritabanı konsolu"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "restaurant_base_url",
+			"value": "http://localhost:8082",
+			"type": "string"
+		}
+	]
+}
+

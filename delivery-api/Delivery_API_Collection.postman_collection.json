@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "delivery-api-collection",
+		"name": "Delivery API Collection",
+		"description": "Teslimat yönetimi API'si için test collection'ı - Go/Gin framework ile Couchbase entegrasyonu",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Delivery Operations",
+			"item": [
+				{
+					"name": "Create Delivery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"orderId\": \"order-123\",\n    \"customerId\": \"customer-123\",\n    \"restaurantId\": \"restaurant-001\",\n    \"deliveryAddress\": {\n        \"street\": \"Atatürk Caddesi\",\n        \"number\": \"123\",\n        \"district\": \"Çankaya\",\n        \"city\": \"Ankara\",\n        \"postalCode\": \"06100\",\n        \"country\": \"Turkey\"\n    },\n    \"customerPhone\": \"+90 555 123 45 67\",\n    \"deliveryNotes\": \"3. kat, daire 8. Kapı zili çalışmıyor, telefon arayın.\",\n    \"estimatedDeliveryTime\": \"2024-01-08T14:30:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery"
+							]
+						},
+						"description": "Yeni teslimat oluştur"
+					}
+				},
+				{
+					"name": "Get Delivery by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery/{{delivery_id}}",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"{{delivery_id}}"
+							]
+						},
+						"description": "ID'ye göre teslimat bilgilerini getir"
+					}
+				},
+				{
+					"name": "Get Delivery by Order ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery/order/order-123",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"order",
+								"order-123"
+							]
+						},
+						"description": "Sipariş ID'sine göre teslimat bilgilerini getir"
+					}
+				},
+				{
+					"name": "Update Delivery Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"notes\": \"Kurye yola çıktı. Tahmini varış: 15 dakika\",\n    \"driverName\": \"Mehmet Yılmaz\",\n    \"driverPhone\": \"+90 555 987 65 43\",\n    \"vehicleInfo\": \"34 ABC 123 - Beyaz Honda\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery/{{delivery_id}}/status",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"{{delivery_id}}",
+								"status"
+							]
+						},
+						"description": "Teslimat durumunu güncelle (PENDING, ASSIGNED, IN_TRANSIT, DELIVERED, CANCELLED)"
+					}
+				},
+				{
+					"name": "Complete Delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"DELIVERED\",\n    \"notes\": \"Teslimat başarıyla tamamlandı. Müşteri teslim aldı.\",\n    \"deliveredAt\": \"2024-01-08T14:25:00Z\",\n    \"signature\": \"customer_signature_base64\",\n    \"deliveryPhoto\": \"delivery_photo_base64\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery/{{delivery_id}}/status",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"{{delivery_id}}",
+								"status"
+							]
+						},
+						"description": "Teslimatı tamamla"
+					}
+				},
+				{
+					"name": "Cancel Delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"CANCELLED\",\n    \"notes\": \"Müşteri teslimatı iptal etti. Sipariş restorana iade edildi.\",\n    \"cancellationReason\": \"CUSTOMER_REQUEST\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_base_url}}/api/delivery/{{delivery_id}}/status",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"{{delivery_id}}",
+								"status"
+							]
+						},
+						"description": "Teslimatı iptal et"
+					}
+				}
+			]
+		},
+		{
+			"name": "Health & Documentation",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_base_url}}/health",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Servis sağlık durumu"
+					}
+				},
+				{
+					"name": "API Documentation (Swagger)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_base_url}}/swagger/index.html",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"swagger",
+								"index.html"
+							]
+						},
+						"description": "Swagger API dokümantasyonu"
+					}
+				},
+				{
+					"name": "Swagger JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_base_url}}/swagger/doc.json",
+							"host": [
+								"{{delivery_base_url}}"
+							],
+							"path": [
+								"swagger",
+								"doc.json"
+							]
+						},
+						"description": "Swagger JSON spec"
+					}
+				}
+			]
+		},
+		{
+			"name": "Couchbase Monitoring",
+			"item": [
+				{
+					"name": "Couchbase Web Console",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{couchbase_url}}/ui/index.html",
+							"host": [
+								"{{couchbase_url}}"
+							],
+							"path": [
+								"ui",
+								"index.html"
+							]
+						},
+						"description": "Couchbase yönetim konsolu"
+					}
+				},
+				{
+					"name": "Couchbase Cluster Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic QWRtaW5pc3RyYXRvcjpwYXNzd29yZA==",
+								"description": "Base64: Administrator:password"
+							}
+						],
+						"url": {
+							"raw": "{{couchbase_url}}/pools/default",
+							"host": [
+								"{{couchbase_url}}"
+							],
+							"path": [
+								"pools",
+								"default"
+							]
+						},
+						"description": "Couchbase cluster bilgileri"
+					}
+				},
+				{
+					"name": "Delivery Bucket Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic QWRtaW5pc3RyYXRvcjpwYXNzd29yZA==",
+								"description": "Base64: Administrator:password"
+							}
+						],
+						"url": {
+							"raw": "{{couchbase_url}}/pools/default/buckets/delivery",
+							"host": [
+								"{{couchbase_url}}"
+							],
+							"path": [
+								"pools",
+								"default",
+								"buckets",
+								"delivery"
+							]
+						},
+						"description": "Delivery bucket bilgileri"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "delivery_base_url",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "couchbase_url",
+			"value": "http://localhost:8091",
+			"type": "string"
+		},
+		{
+			"key": "delivery_id",
+			"value": "delivery-uuid-here",
+			"type": "string",
+			"description": "Test için kullanılacak delivery ID"
+		}
+	]
+}
+

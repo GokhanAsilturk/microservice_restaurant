@@ -1,0 +1,357 @@
+{
+	"info": {
+		"_postman_id": "order-api-collection",
+		"name": "Order API Collection",
+		"description": "Sipariş yönetimi API'si için test collection'ı - ELK Stack entegrasyonu ile",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"customer-123\",\n    \"restaurantId\": \"restaurant-001\",\n    \"items\": [\n        {\n            \"productId\": \"1\",\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        },\n        {\n            \"productId\": \"2\",\n            \"productName\": \"Coca Cola\",\n            \"quantity\": 1,\n            \"price\": 8.50\n        }\n    ],\n    \"deliveryAddress\": \"Atatürk Cad. No:123, Ankara\",\n    \"notes\": \"Ekstra baharatlı olsun\"\n}"
+						},
+						"url": {
+							"raw": "{{order_base_url}}/api/orders",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "Yeni sipariş oluştur"
+					}
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/api/orders",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "Tüm siparişleri listele"
+					}
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/api/orders/1",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						},
+						"description": "ID'ye göre sipariş getir"
+					}
+				},
+				{
+					"name": "Update Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"customer-123\",\n    \"restaurantId\": \"restaurant-001\",\n    \"items\": [\n        {\n            \"productId\": \"1\",\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 3,\n            \"price\": 45.90\n        }\n    ],\n    \"deliveryAddress\": \"Yeni Adres: İstiklal Cad. No:456, İstanbul\",\n    \"notes\": \"Adres değişti\"\n}"
+						},
+						"url": {
+							"raw": "{{order_base_url}}/api/orders/1",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						},
+						"description": "Sipariş güncelle"
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"PREPARING\"\n}"
+						},
+						"url": {
+							"raw": "{{order_base_url}}/api/orders/1/status",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1",
+								"status"
+							]
+						},
+						"description": "Sipariş durumunu güncelle (PENDING, CONFIRMED, PREPARING, READY, DELIVERED, CANCELLED)"
+					}
+				},
+				{
+					"name": "Delete Order",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/api/orders/1",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						},
+						"description": "Sipariş sil"
+					}
+				}
+			]
+		},
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/actuator/health",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						},
+						"description": "Servis sağlık durumu"
+					}
+				},
+				{
+					"name": "Application Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/actuator/info",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"actuator",
+								"info"
+							]
+						},
+						"description": "Uygulama bilgileri"
+					}
+				},
+				{
+					"name": "Application Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/actuator/metrics",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"actuator",
+								"metrics"
+							]
+						},
+						"description": "Uygulama metrikleri"
+					}
+				},
+				{
+					"name": "H2 Console Access",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_base_url}}/h2-console",
+							"host": [
+								"{{order_base_url}}"
+							],
+							"path": [
+								"h2-console"
+							]
+						},
+						"description": "H2 veritabanı konsolu"
+					}
+				}
+			]
+		},
+		{
+			"name": "ELK Stack Monitoring",
+			"item": [
+				{
+					"name": "Elasticsearch Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{elasticsearch_url}}/_cluster/health",
+							"host": [
+								"{{elasticsearch_url}}"
+							],
+							"path": [
+								"_cluster",
+								"health"
+							]
+						},
+						"description": "Elasticsearch cluster sağlık durumu"
+					}
+				},
+				{
+					"name": "Elasticsearch Indices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{elasticsearch_url}}/_cat/indices?v",
+							"host": [
+								"{{elasticsearch_url}}"
+							],
+							"path": [
+								"_cat",
+								"indices"
+							],
+							"query": [
+								{
+									"key": "v",
+									"value": null
+								}
+							]
+						},
+						"description": "Elasticsearch indekslerini listele"
+					}
+				},
+				{
+					"name": "Search Order Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{elasticsearch_url}}/order-api-*/_search?q=level:INFO",
+							"host": [
+								"{{elasticsearch_url}}"
+							],
+							"path": [
+								"order-api-*",
+								"_search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "level:INFO"
+								}
+							]
+						},
+						"description": "Order API loglarında arama yap"
+					}
+				},
+				{
+					"name": "Kibana Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{kibana_url}}/app/home",
+							"host": [
+								"{{kibana_url}}"
+							],
+							"path": [
+								"app",
+								"home"
+							]
+						},
+						"description": "Kibana dashboard'a erişim"
+					}
+				},
+				{
+					"name": "Logstash API Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{logstash_url}}",
+							"host": [
+								"{{logstash_url}}"
+							]
+						},
+						"description": "Logstash API bilgileri"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "order_base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "elasticsearch_url",
+			"value": "http://localhost:9200",
+			"type": "string"
+		},
+		{
+			"key": "kibana_url",
+			"value": "http://localhost:5601",
+			"type": "string"
+		},
+		{
+			"key": "logstash_url",
+			"value": "http://localhost:9600",
+			"type": "string"
+		}
+	]
+}
+

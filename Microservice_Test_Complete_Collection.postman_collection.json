@@ -1,0 +1,454 @@
+{
+	"info": {
+		"_postman_id": "microservice-test-project",
+		"name": "Mikroservis Test Projesi - Complete Collection",
+		"description": "Restaurant, Order ve Delivery API'lerini içeren tam mikroservis test collection'ı",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": "1.0.0"
+	},
+	"item": [
+		{
+			"name": "Restaurant API (Port: 8082)",
+			"description": "Restoran menüsü ve stok yönetimi - Kotlin + Spring Boot + H2",
+			"item": [
+				{
+					"name": "Products Management",
+					"item": [
+						{
+							"name": "Get All Products",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{restaurant_url}}/api/products",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "products"]
+								},
+								"description": "Tüm ürünleri listele"
+							}
+						},
+						{
+							"name": "Get Product by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{restaurant_url}}/api/products/1",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "products", "1"]
+								}
+							}
+						},
+						{
+							"name": "Create New Product",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Margherita Pizza\",\n    \"description\": \"Klasik domates sos ve mozzarella peyniri\",\n    \"price\": 45.90,\n    \"category\": \"Pizza\",\n    \"stockQuantity\": 100\n}"
+								},
+								"url": {
+									"raw": "{{restaurant_url}}/api/products",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "products"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Stock Operations",
+					"item": [
+						{
+							"name": "Check Multiple Products Stock",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"requiredQuantity\": 2},\n        {\"productId\": 2, \"requiredQuantity\": 1}\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{restaurant_url}}/api/stock/check",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "stock", "check"]
+								}
+							}
+						},
+						{
+							"name": "Reduce Stock (Order Placement)",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"quantity\": 2}\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{restaurant_url}}/api/stock/reduce",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "stock", "reduce"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Order API (Port: 8080)",
+			"description": "Sipariş yönetimi - Java + Spring Boot + H2 + ELK Stack",
+			"item": [
+				{
+					"name": "Order Management",
+					"item": [
+						{
+							"name": "Create Order",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"restaurantId\": \"{{restaurant_id}}\",\n    \"items\": [\n        {\n            \"productId\": \"1\",\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ],\n    \"deliveryAddress\": \"Atatürk Cad. No:123, Ankara\",\n    \"notes\": \"Ekstra baharatlı\"\n}"
+								},
+								"url": {
+									"raw": "{{order_url}}/api/orders",
+									"host": ["{{order_url}}"],
+									"path": ["api", "orders"]
+								}
+							}
+						},
+						{
+							"name": "Get All Orders",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{order_url}}/api/orders",
+									"host": ["{{order_url}}"],
+									"path": ["api", "orders"]
+								}
+							}
+						},
+						{
+							"name": "Update Order Status",
+							"request": {
+								"method": "PUT",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"PREPARING\"\n}"
+								},
+								"url": {
+									"raw": "{{order_url}}/api/orders/{{order_id}}/status",
+									"host": ["{{order_url}}"],
+									"path": ["api", "orders", "{{order_id}}", "status"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "ELK Stack Monitoring",
+					"item": [
+						{
+							"name": "Search Order Logs in Elasticsearch",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{elasticsearch_url}}/order-api-*/_search?q=level:INFO&size=10",
+									"host": ["{{elasticsearch_url}}"],
+									"path": ["order-api-*", "_search"],
+									"query": [
+										{"key": "q", "value": "level:INFO"},
+										{"key": "size", "value": "10"}
+									]
+								}
+							}
+						},
+						{
+							"name": "Kibana Dashboard Access",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{kibana_url}}/app/discover",
+									"host": ["{{kibana_url}}"],
+									"path": ["app", "discover"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Delivery API (Port: 8081)",
+			"description": "Teslimat yönetimi - Go + Gin + Couchbase + Swagger",
+			"item": [
+				{
+					"name": "Delivery Management",
+					"item": [
+						{
+							"name": "Create Delivery",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": \"{{customer_id}}\",\n    \"restaurantId\": \"{{restaurant_id}}\",\n    \"deliveryAddress\": {\n        \"street\": \"Atatürk Caddesi\",\n        \"number\": \"123\",\n        \"district\": \"Çankaya\",\n        \"city\": \"Ankara\",\n        \"postalCode\": \"06100\",\n        \"country\": \"Turkey\"\n    },\n    \"customerPhone\": \"+90 555 123 45 67\",\n    \"deliveryNotes\": \"3. kat, daire 8\",\n    \"estimatedDeliveryTime\": \"2024-01-08T14:30:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{delivery_url}}/api/delivery",
+									"host": ["{{delivery_url}}"],
+									"path": ["api", "delivery"]
+								}
+							}
+						},
+						{
+							"name": "Get Delivery by Order ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{delivery_url}}/api/delivery/order/{{order_id}}",
+									"host": ["{{delivery_url}}"],
+									"path": ["api", "delivery", "order", "{{order_id}}"]
+								}
+							}
+						},
+						{
+							"name": "Update Delivery Status",
+							"request": {
+								"method": "PUT",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"notes\": \"Kurye yola çıktı\",\n    \"driverName\": \"Mehmet Yılmaz\",\n    \"driverPhone\": \"+90 555 987 65 43\"\n}"
+								},
+								"url": {
+									"raw": "{{delivery_url}}/api/delivery/{{delivery_id}}/status",
+									"host": ["{{delivery_url}}"],
+									"path": ["api", "delivery", "{{delivery_id}}", "status"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Documentation & Monitoring",
+					"item": [
+						{
+							"name": "Swagger Documentation",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{delivery_url}}/swagger/index.html",
+									"host": ["{{delivery_url}}"],
+									"path": ["swagger", "index.html"]
+								}
+							}
+						},
+						{
+							"name": "Couchbase Console",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{couchbase_url}}/ui/index.html",
+									"host": ["{{couchbase_url}}"],
+									"path": ["ui", "index.html"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Health Checks",
+			"description": "Tüm servislerin sağlık durumu kontrolü",
+			"item": [
+				{
+					"name": "Restaurant API Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_url}}/actuator/health",
+							"host": ["{{restaurant_url}}"],
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Order API Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_url}}/actuator/health",
+							"host": ["{{order_url}}"],
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Delivery API Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_url}}/health",
+							"host": ["{{delivery_url}}"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "Elasticsearch Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{elasticsearch_url}}/_cluster/health",
+							"host": ["{{elasticsearch_url}}"],
+							"path": ["_cluster", "health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Complete Workflow Tests",
+			"description": "End-to-end mikroservis test senaryoları",
+			"item": [
+				{
+					"name": "Full Order Workflow",
+					"item": [
+						{
+							"name": "1. Check Product Stock",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"items\": [{\"productId\": 1, \"requiredQuantity\": 2}]\n}"
+								},
+								"url": {
+									"raw": "{{restaurant_url}}/api/stock/check",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "stock", "check"]
+								}
+							}
+						},
+						{
+							"name": "2. Create Order",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"customerId\": \"workflow-customer\",\n    \"restaurantId\": \"workflow-restaurant\",\n    \"items\": [{\"productId\": \"1\", \"productName\": \"Test Pizza\", \"quantity\": 2, \"price\": 45.90}],\n    \"deliveryAddress\": \"Test Address\"\n}"
+								},
+								"url": {
+									"raw": "{{order_url}}/api/orders",
+									"host": ["{{order_url}}"],
+									"path": ["api", "orders"]
+								}
+							}
+						},
+						{
+							"name": "3. Reduce Stock",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"items\": [{\"productId\": 1, \"quantity\": 2}]\n}"
+								},
+								"url": {
+									"raw": "{{restaurant_url}}/api/stock/reduce",
+									"host": ["{{restaurant_url}}"],
+									"path": ["api", "stock", "reduce"]
+								}
+							}
+						},
+						{
+							"name": "4. Create Delivery",
+							"request": {
+								"method": "POST",
+								"header": [{"key": "Content-Type", "value": "application/json"}],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"orderId\": \"workflow-order\",\n    \"customerId\": \"workflow-customer\",\n    \"deliveryAddress\": {\"street\": \"Test Street\", \"city\": \"Test City\"},\n    \"customerPhone\": \"+90 555 123 45 67\"\n}"
+								},
+								"url": {
+									"raw": "{{delivery_url}}/api/delivery",
+									"host": ["{{delivery_url}}"],
+									"path": ["api", "delivery"]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "restaurant_url",
+			"value": "http://localhost:8082",
+			"type": "string"
+		},
+		{
+			"key": "order_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "delivery_url",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "elasticsearch_url",
+			"value": "http://localhost:9200",
+			"type": "string"
+		},
+		{
+			"key": "kibana_url",
+			"value": "http://localhost:5601",
+			"type": "string"
+		},
+		{
+			"key": "couchbase_url",
+			"value": "http://localhost:8091",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "test-customer-123",
+			"type": "string"
+		},
+		{
+			"key": "restaurant_id",
+			"value": "test-restaurant-001",
+			"type": "string"
+		},
+		{
+			"key": "order_id",
+			"value": "test-order-456",
+			"type": "string"
+		},
+		{
+			"key": "delivery_id",
+			"value": "test-delivery-789",
+			"type": "string"
+		}
+	]
+}
+
