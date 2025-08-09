@@ -1,26 +1,28 @@
-# Restaurant API
+# Restaurant API - Mikroservis Test Projesi
 
 Restoran menüsü ve stok yönetimi için geliştirilmiş Spring Boot ve Kotlin tabanlı mikroservis uygulaması. Ürün katalogunu yönetir ve stok kontrolü sağlar.
 
-## Teknolojiler
+## 🛠 Teknolojiler
 
 - **Java 17**
 - **Kotlin 1.8.21**
 - **Spring Boot 3.1.0**
 - **Spring Data JPA**
-- **PostgreSQL**
+- **H2 Database** (In-memory)
 - **Maven** 
 - **JUnit 5** 
+- **JaCoCo** (Test Coverage)
 - **Docker** 
+- **Spring Boot Actuator** (Health Check & Metrics)
 
-## Gereksinimler
+## 📋 Gereksinimler
 
 - Java 17 veya üzeri
 - Maven 3.6 veya üzeri
-- Docker ve Docker Compose
+- Docker ve Docker Compose (opsiyonel)
 - Git
 
-## Kurulum ve Çalıştırma
+## 🚀 Kurulum ve Çalıştırma
 
 ### 1. Proje Klonlama ve Bağımlılık İndirme
 
@@ -30,8 +32,9 @@ cd restaurant-api
 ```
 
 Windows'ta:
-```cmd
-mvnw.cmd clean install
+```powershell
+cd restaurant-api
+.\mvnw.cmd clean install
 ```
 
 ### 2. Uygulamayı Başlatma
@@ -42,327 +45,394 @@ mvnw.cmd clean install
 ```
 
 Windows'ta:
-```cmd
-mvnw.cmd spring-boot:run
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
 #### JAR dosyası ile:
 ```bash
 ./mvnw clean package
-java -jar target/restaurant-api-0.0.1-SNAPSHOT.jar
+java -jar target/restaurant-api-1.0.0.jar
 ```
 
-#### Docker ile:
+Windows'ta:
 ```powershell
-docker-compose up -d
+.\mvnw.cmd clean package
+java -jar target/restaurant-api-1.0.0.jar
 ```
 
-#### PowerShell Script ile:
+#### PowerShell Script ile (Önerilen):
 ```powershell
 .\start-restaurant.ps1
 ```
 
-Uygulama http://localhost:8082 adresinde çalışacaktır.
+#### Docker ile:
+```bash
+# Dockerfile kullanarak
+docker build -t restaurant-api .
+docker run -p 8081:8081 restaurant-api
 
-## API Endpointleri
+# Docker Compose ile
+docker-compose up -d
+```
+
+### 3. Uygulamanın Çalıştığını Doğrulama
+
+Uygulama başarıyla başladıktan sonra:
+
+- **Ana API**: http://localhost:8081
+- **Health Check**: http://localhost:8081/actuator/health
+- **H2 Console**: http://localhost:8081/h2-console
+- **Actuator Metrics**: http://localhost:8081/actuator/metrics
+
+## 📚 API Endpointleri
 
 ### Ürün İşlemleri
 
-- `GET /api/products` - Tüm ürünleri listele
-- `GET /api/products/{id}` - Ürün detaylarını getir
-- `POST /api/products` - Yeni ürün ekle
-- `PUT /api/products/{id}` - Ürün güncelle
-- `DELETE /api/products/{id}` - Ürün sil
+| Method | Endpoint | Açıklama | Request Body |
+|--------|----------|----------|--------------|
+| GET | `/api/products` | Tüm ürünleri listeler | - |
+| GET | `/api/products/{id}` | Belirli ürünü getirir | - |
+| POST | `/api/products` | Yeni ürün ekler | Product JSON |
+| PUT | `/api/products/{id}` | Ürün günceller | Product JSON |
+| DELETE | `/api/products/{id}` | Ürün siler | - |
 
 ### Stok İşlemleri
 
-- `GET /api/stock/{productId}` - Ürün stok miktarını getir
-- `POST /api/stock/check` - Çoklu ürün stok kontrolü
-- `POST /api/stock/reduce` - Stok miktarını azalt
-- `POST /api/stock/increase` - Stok miktarını arttır
+| Method | Endpoint | Açıklama | Request Body |
+|--------|----------|----------|--------------|
+| GET | `/api/stock/{productId}` | Ürün stok miktarını getirir | - |
+| POST | `/api/stock/check` | Çoklu stok kontrolü yapar | StockCheckRequest JSON |
+| POST | `/api/stock/reduce` | Stok miktarını azaltır | StockUpdateRequest JSON |
+| POST | `/api/stock/increase` | Stok miktarını artırır | StockUpdateRequest JSON |
 
-### Health Check
+### Health & Monitoring
 
-- `GET /actuator/health` - Uygulama sağlık durumu
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/actuator/health` | Uygulama sağlık durumu |
+| GET | `/actuator/metrics` | Uygulama metrikleri |
+| GET | `/actuator/info` | Uygulama bilgileri |
 
-### Örnek API Kullanımı
+## 📄 JSON Şemaları
 
-#### Yeni Ürün Ekleme:
+### Product (Ürün)
 ```json
-POST /api/products
 {
-    "name": "Margherita Pizza",
-    "description": "Klasik domates sos ve mozzarella peyniri",
-    "price": 45.90,
-    "category": "Pizza",
-    "stockQuantity": 100
+  "id": 1,
+  "name": "Margherita Pizza",
+  "description": "Klasik domates sos ve mozzarella peyniri",
+  "price": 45.90,
+  "category": "Pizza",
+  "stockQuantity": 100,
+  "isAvailable": true,
+  "createdAt": "2024-01-08T10:00:00Z",
+  "updatedAt": "2024-01-08T10:00:00Z"
 }
 ```
 
-#### Stok Kontrolü:
+### StockCheckRequest (Stok Kontrol İsteği)
 ```json
-POST /api/stock/check
 {
-    "items": [
-        {
-            "productId": 1,
-            "requiredQuantity": 2
-        },
-        {
-            "productId": 2,
-            "requiredQuantity": 1
-        }
-    ]
+  "items": [
+    {
+      "productId": 1,
+      "requiredQuantity": 2
+    },
+    {
+      "productId": 2,
+      "requiredQuantity": 1
+    }
+  ]
 }
 ```
 
-#### Stok Azaltma:
+### StockUpdateRequest (Stok Güncelleme İsteği)
 ```json
-POST /api/stock/reduce
 {
-    "items": [
-        {
-            "productId": 1,
-            "quantity": 2
-        }
-    ]
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
 }
 ```
 
-## Veritabanı
+## 🧪 Test Çalıştırma
 
-Uygulama H2 in-memory veritabanı kullanır. Geliştirme sırasında veritabanı konsolu şu adreste erişilebilir:
-- **URL**: http://localhost:8082/h2-console
-- **JDBC URL**: jdbc:h2:mem:restaurantdb
-- **Kullanıcı**: sa
-- **Şifre**: (boş)
-
-### Başlangıç Verileri
-
-Uygulama başlatıldığında örnek ürünler otomatik olarak yüklenir:
-- Pizza çeşitleri
-- İçecekler
-- Tatlılar
-- Ana yemekler
-
-## Test Çalıştırma
-
-### Unit Testler
-
-```bash
-# Tüm testleri çalıştır
-./mvnw test
-
-# Belirli bir test sınıfını çalıştır
-./mvnw test -Dtest=ProductControllerTest
-
-# Test kapsamı raporu ile
-./mvnw test jacoco:report
+### Tüm Testleri Çalıştırma
+```powershell
+.\mvnw.cmd test
 ```
 
-Windows'ta:
-```cmd
-mvnw.cmd test
-mvnw.cmd test -Dtest=ProductControllerTest
-mvnw.cmd test jacoco:report
+### Test Coverage Raporu Oluşturma
+```powershell
+.\mvnw.cmd test jacoco:report
 ```
 
-### Integration Testler
+Test coverage raporu: `target/site/jacoco/index.html`
 
-```bash
-# Integration testleri çalıştır
-./mvnw verify
-
-# Sadece integration testler
-./mvnw test -Dtest=*IntegrationTest
+### Belirli Test Sınıfını Çalıştırma
+```powershell
+.\mvnw.cmd test -Dtest=ProductControllerTest
 ```
-
-### Test Raporları
-
-Test sonuçları şu konumlarda bulunur:
-- **Surefire Reports**: `target/surefire-reports/`
-- **JaCoCo Coverage**: `target/site/jacoco/index.html`
 
 ### Test Kategorileri
 
-- **Unit Tests**: Controller, Service ve Repository katmanı testleri
-- **Integration Tests**: Tam uygulama context'i ile testler
-- **Repository Tests**: JPA repository testleri
-- **Stock Tests**: Stok yönetimi business logic testleri
+- **Unit Tests**: Controller, Service, Repository katmanları
+- **Integration Tests**: Database entegrasyonu
+- **API Tests**: REST endpoint testleri
 
-## Geliştirme
+## 🗄️ Veritabanı
 
-### Kod Yapısı
+### H2 Database Console
 
+- **URL**: http://localhost:8081/h2-console
+- **JDBC URL**: `jdbc:h2:mem:restaurantdb`
+- **Kullanıcı**: `sa`
+- **Şifre**: (boş)
+
+### Örnek Veriler
+
+Uygulama başladığında otomatik olarak örnek ürünler yüklenir:
+
+1. **Margherita Pizza** - ₺45.90 (Stok: 100)
+2. **Pepperoni Pizza** - ₺52.90 (Stok: 75)
+3. **Coca Cola** - ₺8.50 (Stok: 200)
+4. **Caesar Salad** - ₺28.90 (Stok: 50)
+
+## 📝 Örnek API Çağrıları
+
+### 1. Tüm Ürünleri Listele
+```bash
+curl -X GET http://localhost:8081/api/products
 ```
-restaurant-api/
-├── src/main/kotlin/
-│   └── com/example/restaurantapi/
-│       ├── RestaurantApiApplication.kt # Ana uygulama sınıfı
-│       ├── controller/                 # REST controller'ları
-│       ├── service/                    # İş mantığı katmanı
-│       ├── repository/                 # Veri erişim katmanı
-│       ├── model/                      # Entity sınıfları
-│       ├── dto/                        # Data Transfer Objects
-│       └── config/                     # Konfigürasyon sınıfları
-├── src/main/resources/
-│   ├── application.yml                 # Uygulama konfigürasyonu
-│   └── data.sql                        # Başlangıç verileri
-├── src/test/kotlin/                    # Test sınıfları
-└── target/                             # Maven build çıktıları
+
+### 2. Yeni Ürün Ekle
+```bash
+curl -X POST http://localhost:8081/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Quattro Stagioni Pizza",
+    "description": "Dört mevsim pizzası",
+    "price": 58.90,
+    "category": "Pizza",
+    "stockQuantity": 80
+  }'
 ```
 
-### Profiller
+### 3. Stok Kontrolü Yap
+```bash
+curl -X POST http://localhost:8081/api/stock/check \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {"productId": 1, "requiredQuantity": 2},
+      {"productId": 3, "requiredQuantity": 1}
+    ]
+  }'
+```
 
-- **default**: H2 in-memory veritabanı
-- **test**: Test konfigürasyonu
-- **docker**: Docker ortamı konfigürasyonu
+### 4. Stok Azalt (Sipariş Sonrası)
+```bash
+curl -X POST http://localhost:8081/api/stock/reduce \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {"productId": 1, "quantity": 2}
+    ]
+  }'
+```
 
-### Kotlin ve Java Entegrasyonu
+## 🐳 Docker Kullanımı
 
-Bu proje Kotlin ile yazılmıştır ancak Java ecosystem'i ile tam uyumludur:
-- Spring Boot annotations
-- JPA entities
-- Maven build lifecycle
-
-## Docker Komutları
-
+### Dockerfile ile Build
 ```powershell
-# Uygulamayı başlat
+docker build -t restaurant-api .
+docker run -p 8081:8081 --name restaurant-api-container restaurant-api
+```
+
+### Docker Compose ile
+```powershell
+# Sadece Restaurant API'yi başlat
+docker-compose up -d restaurant-api
+
+# Tüm servisleri başlat
 docker-compose up -d
+```
+
+### Container Yönetimi
+```powershell
+# Container durumunu kontrol et
+docker ps
 
 # Logları görüntüle
-docker-compose logs restaurant-api
+docker logs restaurant-api-container
 
-# Uygulamayı durdur
-docker-compose down
+# Container'ı durdur
+docker stop restaurant-api-container
 
-# Tüm verileri sil ve yeniden başlat
-docker-compose down -v ; docker-compose up -d
+# Container'ı sil
+docker rm restaurant-api-container
 ```
 
-## Maven Komutları
+## 🔍 Monitoring ve Debugging
 
+### Health Check
 ```bash
-# Projeyi derle (Kotlin + Java)
-./mvnw compile
-
-# Testleri çalıştır
-./mvnw test
-
-# Paketleme (JAR oluştur)
-./mvnw package
-
-# Bağımlılıkları güncelle
-./mvnw dependency:resolve
-
-# Proje temizle
-./mvnw clean
-
-# Kotlin compilation check
-./mvnw kotlin:compile
+curl http://localhost:8081/actuator/health
 ```
 
-## Durdurma
+Yanıt:
+```json
+{
+  "status": "UP",
+  "components": {
+    "db": {"status": "UP"},
+    "diskSpace": {"status": "UP"},
+    "ping": {"status": "UP"}
+  }
+}
+```
 
+### Metrics
+```bash
+curl http://localhost:8081/actuator/metrics
+```
+
+### Uygulama Logları
+
+Loglama seviyeleri:
+- **INFO**: Genel bilgi mesajları
+- **DEBUG**: Detaylı debug bilgileri
+- **ERROR**: Hata mesajları
+
+## 🛠️ Geliştirme
+
+### IDE Kurulumu
+
+**IntelliJ IDEA (Önerilen):**
+1. Projeyi açın
+2. Kotlin plugin'inin aktif olduğundan emin olun
+3. Maven projesini import edin
+4. JDK 17'yi seçin
+
+**Visual Studio Code:**
+1. Java Extension Pack yükleyin
+2. Kotlin Language Support extension yükleyin
+3. Maven for Java extension yükleyin
+
+### Debug Modunda Çalıştırma
 ```powershell
-# PowerShell script ile
-.\stop-restaurant.ps1
-
-# Docker Compose ile
-docker-compose down
-
-# Maven ile (eğer maven ile başlattıysanız)
-# Ctrl+C ile durdurabilirsiniz
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
 ```
 
-## Monitoring ve Health Check
+### Profil Yönetimi
 
-### Actuator Endpoints
-
-- `/actuator/health` - Sağlık durumu
-- `/actuator/info` - Uygulama bilgileri
-- `/actuator/metrics` - Metrikler
-
-### JaCoCo Test Coverage
-
-Test coverage raporunu görüntülemek için:
-
-```bash
-./mvnw test jacoco:report
+**Development Profili:**
+```powershell
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Rapor `target/site/jacoco/index.html` dosyasında bulunur.
+**Production Profili:**
+```powershell
+java -jar target/restaurant-api-1.0.0.jar --spring.profiles.active=prod
+```
 
-## API İş Akışı
+## 📊 Test Coverage Hedefleri
 
-### Tipik Stok Kontrolü Senaryosu:
+- **Minimum Coverage**: %80
+- **Controller Coverage**: %90+
+- **Service Coverage**: %85+
+- **Repository Coverage**: %75+
 
-1. **Sipariş geldiğinde**:
-   ```
-   POST /api/stock/check
-   ```
+### Coverage Raporunu Görüntüleme
+Test coverage raporu: `target/site/jacoco/index.html`
 
-2. **Stok varsa, rezerve et**:
-   ```
-   POST /api/stock/reduce
-   ```
-
-3. **Sipariş iptal edilirse, stoku geri al**:
-   ```
-   POST /api/stock/increase
-   ```
-
-## Sorun Giderme
+## 🔧 Sorun Giderme
 
 ### Port Çakışması
-- 8082 portunun kullanımda olmadığından emin olun
-- `netstat -an | findstr 8082` komutu ile port kullanımını kontrol edin
+```powershell
+# Port 8081 kullanımını kontrol et
+netstat -an | findstr 8081
 
-### Maven Bağımlılık Sorunları
-```bash
-./mvnw dependency:purge-local-repository
-./mvnw clean install
+# Farklı port ile başlat
+.\mvnw.cmd spring-boot:run -Dserver.port=8083
 ```
 
-### H2 Database Bağlantı Sorunu
-- H2 console erişimi: http://localhost:8082/h2-console
-- JDBC URL'in doğru olduğundan emin olun: `jdbc:h2:mem:restaurantdb`
+### Maven Sorunları
+```powershell
+# Maven cache temizle
+.\mvnw.cmd dependency:purge-local-repository
 
-### Kotlin Compilation Sorunu
-```bash
-./mvnw clean
-./mvnw kotlin:compile
-./mvnw compile
+# Temiz build
+.\mvnw.cmd clean install
 ```
 
-### Java Version Sorunu
-```bash
-java -version
-./mvnw -version
+### H2 Database Sorunları
+```powershell
+# H2 console erişimi için application.properties kontrol et
+spring.h2.console.enabled=true
+spring.h2.console.settings.web-allow-others=true
 ```
 
-Java 17 veya üzeri sürüm gereklidir.
+## 🔄 Mikroservis Entegrasyonu
 
-## API Test Örnekleri
+Bu servis diğer mikroservislerle şu şekilde entegre olur:
 
-### cURL ile Test
+1. **Order API (Port: 8080)** - Sipariş oluşturulurken stok kontrolü yapar
+2. **Delivery API (Port: 8082)** - Teslimat sürecinde ürün bilgilerini alır
 
-```bash
-# Tüm ürünleri listele
-curl -X GET http://localhost:8082/api/products
-
-# Yeni ürün ekle
-curl -X POST http://localhost:8082/api/products \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test Pizza","price":35.0,"stockQuantity":50}'
-
-# Stok kontrolü
-curl -X POST http://localhost:8082/api/stock/check \
-  -H "Content-Type: application/json" \
-  -d '{"items":[{"productId":1,"requiredQuantity":2}]}'
+### Entegrasyon Testleri
+```powershell
+# Tüm mikroservislerin çalıştığından emin olun
+curl http://localhost:8081/actuator/health  # Restaurant API
+curl http://localhost:8080/actuator/health  # Order API
+curl http://localhost:8082/health           # Delivery API
 ```
 
-## Lisans
+## 📦 Dağıtım
 
-Bu proje eğitim amaçlıdır.
+### Production Build
+```powershell
+.\mvnw.cmd clean package -Pprod
+```
+
+### JAR Dosyası Çalıştırma
+```powershell
+java -jar target/restaurant-api-1.0.0.jar --spring.profiles.active=prod
+```
+
+### Environment Variables
+```powershell
+# Veritabanı konfigürasyonu
+$env:SPRING_DATASOURCE_URL="jdbc:h2:mem:restaurantdb"
+$env:SPRING_PROFILES_ACTIVE="prod"
+$env:SERVER_PORT="8081"
+
+# Uygulamayı başlat
+java -jar target/restaurant-api-1.0.0.jar
+```
+
+## 📋 Yapılacaklar (TODO)
+
+- [ ] PostgreSQL entegrasyonu
+- [ ] Redis cache implementasyonu
+- [ ] API rate limiting
+- [ ] Authentication & Authorization
+- [ ] Swagger/OpenAPI dokümantasyonu
+- [ ] Prometheus metrics
+- [ ] Circuit breaker pattern
+
+## 📞 Destek
+
+Sorun yaşadığınızda:
+1. Bu README dosyasını kontrol edin
+2. Logları inceleyin
+3. Health check endpoint'ini kontrol edin
+4. Test coverage raporuna bakın
+
+## 📜 Lisans
+
+Bu proje eğitim amaçlıdır ve MIT lisansı altında lisanslanmıştır.

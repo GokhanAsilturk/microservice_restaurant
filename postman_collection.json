@@ -8,7 +8,7 @@
 	},
 	"item": [
 		{
-			"name": "Restaurant API (Port: 8082)",
+			"name": "Restaurant API (Port: 8081)",
 			"description": "Restoran menüsü ve stok yönetimi - Kotlin + Spring Boot + H2",
 			"item": [
 				{
@@ -33,9 +33,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{restaurant_url}}/api/products/1",
+									"raw": "{{restaurant_url}}/api/products/{{product_id}}",
 									"host": ["{{restaurant_url}}"],
-									"path": ["api", "products", "1"]
+									"path": ["api", "products", "{{product_id}}"]
 								}
 							}
 						},
@@ -110,7 +110,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"restaurantId\": \"{{restaurant_id}}\",\n    \"items\": [\n        {\n            \"productId\": \"1\",\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ],\n    \"deliveryAddress\": \"Atatürk Cad. No:123, Ankara\",\n    \"notes\": \"Ekstra baharatlı\"\n}"
+									"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "{{order_url}}/api/orders",
@@ -185,7 +185,7 @@
 			]
 		},
 		{
-			"name": "Delivery API (Port: 8081)",
+			"name": "Delivery API (Port: 8082)",
 			"description": "Teslimat yönetimi - Go + Gin + Couchbase + Swagger",
 			"item": [
 				{
@@ -198,7 +198,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": \"{{customer_id}}\",\n    \"restaurantId\": \"{{restaurant_id}}\",\n    \"deliveryAddress\": {\n        \"street\": \"Atatürk Caddesi\",\n        \"number\": \"123\",\n        \"district\": \"Çankaya\",\n        \"city\": \"Ankara\",\n        \"postalCode\": \"06100\",\n        \"country\": \"Turkey\"\n    },\n    \"customerPhone\": \"+90 555 123 45 67\",\n    \"deliveryNotes\": \"3. kat, daire 8\",\n    \"estimatedDeliveryTime\": \"2024-01-08T14:30:00Z\"\n}"
+									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "{{delivery_url}}/api/delivery",
@@ -336,7 +336,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"items\": [{\"productId\": 1, \"requiredQuantity\": 2}]\n}"
+									"raw": "{\n    \"items\": [{\"productId\": {{product_id}}, \"requiredQuantity\": 2}]\n}"
 								},
 								"url": {
 									"raw": "{{restaurant_url}}/api/stock/check",
@@ -352,7 +352,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"customerId\": \"workflow-customer\",\n    \"restaurantId\": \"workflow-restaurant\",\n    \"items\": [{\"productId\": \"1\", \"productName\": \"Test Pizza\", \"quantity\": 2, \"price\": 45.90}],\n    \"deliveryAddress\": \"Test Address\"\n}"
+									"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Test Address\",\n    \"items\": [{\"productId\": {{product_id}}, \"productName\": \"Test Pizza\", \"quantity\": 2, \"price\": 45.90}]\n}"
 								},
 								"url": {
 									"raw": "{{order_url}}/api/orders",
@@ -368,7 +368,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"items\": [{\"productId\": 1, \"quantity\": 2}]\n}"
+									"raw": "{\n    \"items\": [{\"productId\": {{product_id}}, \"quantity\": 2}]\n}"
 								},
 								"url": {
 									"raw": "{{restaurant_url}}/api/stock/reduce",
@@ -384,7 +384,7 @@
 								"header": [{"key": "Content-Type", "value": "application/json"}],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"orderId\": \"workflow-order\",\n    \"customerId\": \"workflow-customer\",\n    \"deliveryAddress\": {\"street\": \"Test Street\", \"city\": \"Test City\"},\n    \"customerPhone\": \"+90 555 123 45 67\"\n}"
+									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": {{customer_id}},\n    \"address\": \"Test Address\"\n}"
 								},
 								"url": {
 									"raw": "{{delivery_url}}/api/delivery",
@@ -401,7 +401,7 @@
 	"variable": [
 		{
 			"key": "restaurant_url",
-			"value": "http://localhost:8082",
+			"value": "http://localhost:8081",
 			"type": "string"
 		},
 		{
@@ -411,7 +411,7 @@
 		},
 		{
 			"key": "delivery_url",
-			"value": "http://localhost:8081",
+			"value": "http://localhost:8082",
 			"type": "string"
 		},
 		{
@@ -431,24 +431,33 @@
 		},
 		{
 			"key": "customer_id",
-			"value": "test-customer-123",
-			"type": "string"
+			"value": "123",
+			"type": "string",
+			"description": "Test müşteri ID'si (integer olarak kullanılır)"
 		},
 		{
 			"key": "restaurant_id",
-			"value": "test-restaurant-001",
-			"type": "string"
+			"value": "1",
+			"type": "string",
+			"description": "Test restoran ID'si (integer olarak kullanılır)"
+		},
+		{
+			"key": "product_id",
+			"value": "1",
+			"type": "string",
+			"description": "Test ürün ID'si (integer olarak kullanılır)"
 		},
 		{
 			"key": "order_id",
-			"value": "test-order-456",
-			"type": "string"
+			"value": "order-456",
+			"type": "string",
+			"description": "Test sipariş ID'si (string olarak kullanılır)"
 		},
 		{
 			"key": "delivery_id",
-			"value": "test-delivery-789",
-			"type": "string"
+			"value": "delivery-789",
+			"type": "string",
+			"description": "Test teslimat ID'si (string olarak kullanılır)"
 		}
 	]
 }
-

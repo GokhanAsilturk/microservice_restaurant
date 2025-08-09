@@ -4,9 +4,9 @@ Bu proje, basit bir mikroservis mimarisini göstermek için oluşturulmuştur. �
 
 ## Mikroservisler
 
-1. **Restaurant API (Port: 8082)** - Restoran menüsü ve stok yönetimi
+1. **Restaurant API (Port: 8081)** - Restoran menüsü ve stok yönetimi
    - **Teknoloji**: Kotlin + Spring Boot 3.1.0
-   - **Veritabanı**: PostgreSQL
+   - **Veritabanı**: H2 (In-memory)
    - **Özellikler**: Ürün kataloğu, stok kontrolü, stok azaltma/artırma
 
 2. **Order API (Port: 8080)** - Sipariş yönetimi
@@ -15,7 +15,7 @@ Bu proje, basit bir mikroservis mimarisini göstermek için oluşturulmuştur. �
    - **Log Stack**: Elasticsearch + Logstash + Kibana (ELK)
    - **Özellikler**: Sipariş oluşturma, sipariş takibi, durum yönetimi, log analizi
 
-3. **Delivery API (Port: 8081)** - Teslimat yönetimi
+3. **Delivery API (Port: 8082)** - Teslimat yönetimi
    - **Teknoloji**: Go 1.23 + Gin Framework
    - **Veritabanı**: Couchbase (NoSQL)
    - **Özellikler**: Teslimat oluşturma, durum takibi
@@ -71,10 +71,10 @@ docker-compose up -d
 
 Tüm servisler başladıktan sonra şu adreslerde erişilebilir olacaktır:
 
-- **Restaurant API**: http://localhost:8082
+- **Restaurant API**: http://localhost:8081
 - **Order API**: http://localhost:8080  
-- **Delivery API**: http://localhost:8081
-- **Delivery API Swagger**: http://localhost:8081/swagger/index.html
+- **Delivery API**: http://localhost:8082
+- **Delivery API Swagger**: http://localhost:8082/swagger/index.html
 
 ## ELK Stack (Order API için Log Analizi)
 
@@ -104,7 +104,7 @@ Her mikroservisin kendi README dosyası vardır:
 
 ## API Endpointleri
 
-### Restaurant API (Port: 8082)
+### Restaurant API (Port: 8081)
 
 **Ürün İşlemleri:**
 - `GET /api/products` - Tüm ürünleri listeler
@@ -131,7 +131,7 @@ Her mikroservisin kendi README dosyası vardır:
 **Health Check:**
 - `GET /actuator/health` - Servis sağlık durumu
 
-### Delivery API (Port: 8081)
+### Delivery API (Port: 8082)
 
 **Teslimat İşlemleri:**
 - `POST /api/delivery` - Yeni teslimat oluşturur
@@ -182,7 +182,7 @@ Test raporları şu konumlarda bulunur:
 ### H2 Database Konsolu
 
 **Restaurant API:**
-- URL: http://localhost:8082/h2-console
+- URL: http://localhost:8081/h2-console
 - JDBC URL: `jdbc:h2:mem:restaurantdb`
 - Kullanıcı: `sa`
 - Şifre: (boş)
@@ -234,7 +234,7 @@ docker-compose down -v
 
 ### 1. Ürün Ekleme (Restaurant API)
 ```bash
-curl -X POST http://localhost:8082/api/products \
+curl -X POST http://localhost:8081/api/products \
   -H "Content-Type: application/json" \
   -d '{"name":"Margherita Pizza","price":45.90,"stockQuantity":100}'
 ```
@@ -248,7 +248,7 @@ curl -X POST http://localhost:8080/api/orders \
 
 ### 3. Teslimat Başlatma (Delivery API)
 ```bash
-curl -X POST http://localhost:8081/api/delivery \
+curl -X POST http://localhost:8082/api/delivery \
   -H "Content-Type: application/json" \
   -d '{"orderId":"order-123","address":"Test Address","customerId":"12345"}'
 ```
@@ -317,8 +317,8 @@ netstat -an | findstr 8082
 ```powershell
 # Health check endpoint'leri
 curl http://localhost:8080/actuator/health
-curl http://localhost:8082/actuator/health
-curl http://localhost:8081/health
+curl http://localhost:8081/actuator/health
+curl http://localhost:8082/health
 ```
 
 ### Docker Sorunları
@@ -349,7 +349,7 @@ cd delivery-api ; go clean -modcache ; go mod download ; go mod tidy ; cd ..
 
 ### Actuator Endpoints (Java Servisleri)
 
-- **Restaurant API**: http://localhost:8082/actuator/metrics
+- **Restaurant API**: http://localhost:8081/actuator/metrics
 - **Order API**: http://localhost:8080/actuator/metrics
 
 ### Test Coverage Hedefleri
@@ -419,9 +419,9 @@ Projede her mikroservis için hazır Postman collection'ları bulunmaktadır. Bu
 Collection'lar otomatik olarak şu environment variable'ları tanımlar:
 
 ```
-restaurant_url = http://localhost:8082
+restaurant_url = http://localhost:8081
 order_url = http://localhost:8080
-delivery_url = http://localhost:8081
+delivery_url = http://localhost:8082
 elasticsearch_url = http://localhost:9200
 kibana_url = http://localhost:5601
 couchbase_url = http://localhost:8091
@@ -445,4 +445,3 @@ couchbase_url = http://localhost:8091
 - Elasticsearch log sorguları
 - Kibana dashboard erişimi
 - Couchbase cluster durumu
-
