@@ -7,10 +7,10 @@ Sipariş yönetimi için geliştirilmiş Spring Boot tabanlı mikroservis uygula
 - **Java 17**
 - **Spring Boot 3.3.0**
 - **Spring Data JPA**
-- **H2 Database** (In-memory veritabanı)
-- **Maven** (Bağımlılık yönetimi)
-- **JUnit 5** (Test framework)
-- **Docker** (Konteynerizasyon)
+- **H2 Database** 
+- **Maven** 
+- **JUnit 5** 
+- **Docker**
 - **ELK Stack** (Log analizi)
   - **Elasticsearch 9.0.4** (Log depolama ve arama)
   - **Logstash 9.0.4** (Log toplama ve işleme)

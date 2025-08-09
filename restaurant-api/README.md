@@ -8,10 +8,10 @@ Restoran menüsü ve stok yönetimi için geliştirilmiş Spring Boot ve Kotlin 
 - **Kotlin 1.8.21**
 - **Spring Boot 3.1.0**
 - **Spring Data JPA**
-- **H2 Database** (In-memory veritabanı)
-- **Maven** (Bağımlılık yönetimi)
-- **JUnit 5** (Test framework)
-- **Docker** (Konteynerizasyon)
+- **PostgreSQL**
+- **Maven** 
+- **JUnit 5** 
+- **Docker** 
 
 ## Gereksinimler
 

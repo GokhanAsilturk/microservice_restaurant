@@ -6,8 +6,8 @@ Bu proje, basit bir mikroservis mimarisini göstermek için oluşturulmuştur. �
 
 1. **Restaurant API (Port: 8082)** - Restoran menüsü ve stok yönetimi
    - **Teknoloji**: Kotlin + Spring Boot 3.1.0
-   - **Veritabanı**: H2 (In-memory)
-   - **Özellikler**: Ürün katalogı, stok kontrolü, stok azaltma/artırma
+   - **Veritabanı**: PostgreSQL
+   - **Özellikler**: Ürün kataloğu, stok kontrolü, stok azaltma/artırma
 
 2. **Order API (Port: 8080)** - Sipariş yönetimi
    - **Teknoloji**: Java 17 + Spring Boot 3.3.0
@@ -18,7 +18,19 @@ Bu proje, basit bir mikroservis mimarisini göstermek için oluşturulmuştur. �
 3. **Delivery API (Port: 8081)** - Teslimat yönetimi
    - **Teknoloji**: Go 1.23 + Gin Framework
    - **Veritabanı**: Couchbase (NoSQL)
-   - **Özellikler**: Teslimat oluşturma, durum takibi, Swagger dokümantasyonu
+   - **Özellikler**: Teslimat oluşturma, durum takibi
+
+## Mikroservis README'leri
+
+Her mikroservis için detaylı dokümantasyon içeren ayrı README dosyaları bulunmaktadır:
+
+| Servis | README Bağlantısı|
+|--------|-------------------|
+| **Restaurant API** | [Restaurant API README](./restaurant-api/README.md) |
+| **Order API** | [Order API README](./order_api/README.md) |
+| **Delivery API** | [Delivery API README](./delivery-api/README.md) |
+
+Bu dokümanlardan her servisi ayrı ayrı nasıl çalıştıracağınız, test edeceğiniz ve geliştireceğiniz hakkında detaylı bilgi edinebilirsiniz.
 
 ## Sistem Gereksinimleri
 

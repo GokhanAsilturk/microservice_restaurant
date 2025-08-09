@@ -7,8 +7,8 @@ Teslimat yönetimi için geliştirilmiş Go tabanlı mikroservis uygulaması. Gi
 - **Go 1.23**
 - **Gin Web Framework**
 - **Couchbase** (NoSQL veritabanı)
-- **Swagger** (API dokümantasyonu)
-- **Docker** (Konteynerizasyon)
+- **Swagger** 
+- **Docker** 
 
 ## Gereksinimler
 
