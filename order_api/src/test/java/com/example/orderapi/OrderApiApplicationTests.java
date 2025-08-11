@@ -36,8 +36,7 @@ class OrderApiApplicationTests {
 
     @Test
     void contextLoads() {
-        // Bu test Spring Boot context'inin başarıyla yüklendiğini doğrular
-        // Tüm bağımlılıklar mock'lanarak context loading problemi çözülür
+
     }
 
 }

@@ -9,7 +9,6 @@ import (
 )
 
 func TestDeliveryRequest_JSONMarshaling(t *testing.T) {
-	// Test data
 	request := DeliveryRequest{
 		OrderId:    "order-123",
 		CustomerId: 456,
@@ -24,13 +23,11 @@ func TestDeliveryRequest_JSONMarshaling(t *testing.T) {
 		},
 	}
 
-	// Marshal to JSON
 	jsonData, err := json.Marshal(request)
 	assert.NoError(t, err)
 	assert.Contains(t, string(jsonData), "order-123")
 	assert.Contains(t, string(jsonData), "Test Product")
 
-	// Unmarshal from JSON
 	var unmarshaledRequest DeliveryRequest
 	err = json.Unmarshal(jsonData, &unmarshaledRequest)
 	assert.NoError(t, err)
@@ -41,21 +38,18 @@ func TestDeliveryRequest_JSONMarshaling(t *testing.T) {
 }
 
 func TestDeliveryResponse_JSONMarshaling(t *testing.T) {
-	// Test data
 	response := DeliveryResponse{
 		Success:    true,
 		DeliveryId: 123,
 		Message:    "Test message",
 	}
 
-	// Marshal to JSON
 	jsonData, err := json.Marshal(response)
 	assert.NoError(t, err)
 	assert.Contains(t, string(jsonData), "true")
 	assert.Contains(t, string(jsonData), "123")
 	assert.Contains(t, string(jsonData), "Test message")
 
-	// Unmarshal from JSON
 	var unmarshaledResponse DeliveryResponse
 	err = json.Unmarshal(jsonData, &unmarshaledResponse)
 	assert.NoError(t, err)
@@ -65,7 +59,6 @@ func TestDeliveryResponse_JSONMarshaling(t *testing.T) {
 }
 
 func TestDelivery_JSONMarshaling(t *testing.T) {
-	// Test data
 	now := time.Now()
 	delivery := Delivery{
 		ID:         "delivery::123",
@@ -87,13 +80,11 @@ func TestDelivery_JSONMarshaling(t *testing.T) {
 		UpdatedAt: now,
 	}
 
-	// Marshal to JSON
 	jsonData, err := json.Marshal(delivery)
 	assert.NoError(t, err)
 	assert.Contains(t, string(jsonData), "delivery::123")
 	assert.Contains(t, string(jsonData), "PREPARING")
 
-	// Unmarshal from JSON
 	var unmarshaledDelivery Delivery
 	err = json.Unmarshal(jsonData, &unmarshaledDelivery)
 	assert.NoError(t, err)
@@ -104,7 +95,6 @@ func TestDelivery_JSONMarshaling(t *testing.T) {
 }
 
 func TestOrderItem_JSONMarshaling(t *testing.T) {
-	// Test data
 	item := OrderItem{
 		ProductId:   1,
 		ProductName: "Test Product",
@@ -112,13 +102,11 @@ func TestOrderItem_JSONMarshaling(t *testing.T) {
 		Price:       25.99,
 	}
 
-	// Marshal to JSON
 	jsonData, err := json.Marshal(item)
 	assert.NoError(t, err)
 	assert.Contains(t, string(jsonData), "Test Product")
 	assert.Contains(t, string(jsonData), "25.99")
 
-	// Unmarshal from JSON
 	var unmarshaledItem OrderItem
 	err = json.Unmarshal(jsonData, &unmarshaledItem)
 	assert.NoError(t, err)
@@ -129,7 +117,6 @@ func TestOrderItem_JSONMarshaling(t *testing.T) {
 }
 
 func TestDeliveryRequest_EmptyFields(t *testing.T) {
-	// Test with empty fields
 	request := DeliveryRequest{}
 
 	jsonData, err := json.Marshal(request)
@@ -145,18 +132,15 @@ func TestDeliveryRequest_EmptyFields(t *testing.T) {
 }
 
 func TestDeliveryResponse_ErrorCase(t *testing.T) {
-	// Test error response
 	response := DeliveryResponse{
 		Success: false,
 		Message: "Error occurred",
-		// DeliveryId should be omitted when there's an error
 	}
 
 	jsonData, err := json.Marshal(response)
 	assert.NoError(t, err)
 	assert.Contains(t, string(jsonData), "false")
 	assert.Contains(t, string(jsonData), "Error occurred")
-	// DeliveryId should not be present in JSON for error cases
 	assert.NotContains(t, string(jsonData), "deliveryId")
 }
 
@@ -180,7 +164,6 @@ func TestDelivery_StatusValues(t *testing.T) {
 }
 
 func TestOrderItem_ZeroValues(t *testing.T) {
-	// Test with zero values
 	item := OrderItem{
 		ProductId:   0,
 		ProductName: "",

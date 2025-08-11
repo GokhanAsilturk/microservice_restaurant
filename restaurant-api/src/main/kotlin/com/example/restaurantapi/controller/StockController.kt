@@ -3,14 +3,11 @@ package com.example.restaurantapi.controller
 import com.example.restaurantapi.service.StockRequest
 import com.example.restaurantapi.service.StockResponse
 import com.example.restaurantapi.service.StockService
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/stock")
-@Tag(name = "Stok Yönetimi", description = "Stok kontrol ve yönetim işlemleri")
 class StockController(private val stockService: StockService) {
 
     @PostMapping("/check")

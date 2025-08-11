@@ -8,13 +8,7 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends ElasticsearchRepository<Order, String> {
-    // Elasticsearch repository metodları otomatik olarak sağlanır
 
-    /**
-     * Müşteri ID'sine göre siparişleri bulur
-     *
-     * @param customerId Müşteri ID'si
-     * @return Müşteriye ait siparişler listesi
-     */
+
     List<Order> findByCustomerId(int customerId);
 }

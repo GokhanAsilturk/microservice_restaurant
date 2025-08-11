@@ -34,7 +34,6 @@ public class DeliveryRequest {
         this.orderId = orderId;
         this.customerId = customerId;
         this.address = address;
-        // ISO format olarak gönderelim
         this.requestTime = LocalDateTime.now().toString();
 
         if (orderItems != null) {

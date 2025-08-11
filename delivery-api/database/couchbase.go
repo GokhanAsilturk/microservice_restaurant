@@ -16,10 +16,9 @@ var (
 )
 
 func InitCouchbase() {
-	// Docker container içinden Couchbase host'u al
 	couchbaseHost := os.Getenv("COUCHBASE_HOST")
 	if couchbaseHost == "" {
-		couchbaseHost = "localhost" // fallback için
+		couchbaseHost = "localhost"
 	}
 
 	couchbaseUsername := os.Getenv("COUCHBASE_USERNAME")
@@ -35,7 +34,7 @@ func InitCouchbase() {
 	connectionString := fmt.Sprintf("couchbase://%s", couchbaseHost)
 	log.Printf("Couchbase'e bağlanılıyor: %s", connectionString)
 
-	// Goroutine ile asenkron bağlantı denemesi
+
 	go func() {
 		maxRetries := 30
 		retryDelay := 10 * time.Second
@@ -60,14 +59,14 @@ func InitCouchbase() {
 
 			Cluster = cluster
 
-			// Bucket adı
+
 			bucketName := "deliveries"
 			log.Printf("Bucket'a bağlanılıyor: %s", bucketName)
 
-			// Bucket'a bağlan
+
 			bucket := cluster.Bucket(bucketName)
 
-			// Bucket'ın hazır olmasını bekle (retry ile)
+
 			for j := 0; j < 5; j++ {
 				err = bucket.WaitUntilReady(60*time.Second, nil)
 				if err == nil {

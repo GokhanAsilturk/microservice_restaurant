@@ -19,7 +19,7 @@ import java.util.List;
 public class Order {
 
     @Id
-    private String id; // Elasticsearch auto-generated ID için String kullanıyorum
+    private String id;
 
     @Field(type = FieldType.Integer)
     private int customerId;

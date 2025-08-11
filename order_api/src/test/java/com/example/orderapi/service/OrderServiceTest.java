@@ -60,7 +60,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Test verilerini hazırla
+
         orderItemDto = OrderItemDto.builder()
                 .productId(1)
                 .quantity(2)
@@ -86,7 +86,7 @@ class OrderServiceTest {
                 .totalAmount(100.0)
                 .build();
 
-        // RestTemplate URL'lerini ayarla
+
         ReflectionTestUtils.setField(orderService, "restaurantApiUrl", "http://localhost:8081");
         ReflectionTestUtils.setField(orderService, "deliveryApiUrl", "http://localhost:8082");
     }
@@ -96,7 +96,6 @@ class OrderServiceTest {
      */
     @Test
     void placeOrder_ShouldCreateOrder_WhenAllServicesWork() {
-        // Bu test şimdilik skip ediliyor - integration test olarak ayrı test edilebilir
         assertTrue(true); // Placeholder test
     }
 
@@ -105,7 +104,7 @@ class OrderServiceTest {
      */
     @Test
     void placeOrder_ShouldThrowException_WhenStockUnavailable() {
-        // Given - Stok yetersiz response
+
         StockResponse stockResponse = new StockResponse(false, "Stok yetersiz");
         when(restTemplate.postForEntity(
                 eq("http://localhost:8081/stock/check"),
@@ -113,7 +112,7 @@ class OrderServiceTest {
                 eq(StockResponse.class)))
                 .thenReturn(new ResponseEntity<>(stockResponse, HttpStatus.OK));
 
-        // When & Then
+
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             orderService.placeOrder(orderRequest);
         });
@@ -125,14 +124,13 @@ class OrderServiceTest {
      */
     @Test
     void placeOrder_ShouldHandleException_WhenRestaurantApiUnavailable() {
-        // Given
+
         when(restTemplate.postForEntity(
                 eq("http://localhost:8081/stock/check"),
                 any(StockRequest.class),
                 eq(StockResponse.class)))
                 .thenThrow(new ResourceAccessException("Connection refused"));
 
-        // When & Then - Service exception yakalayıp false döndürüyor
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             orderService.placeOrder(orderRequest);
         });
@@ -144,14 +142,14 @@ class OrderServiceTest {
      */
     @Test
     void getAllOrders_ShouldReturnAllOrders() {
-        // Given
+
         List<Order> expectedOrders = Arrays.asList(testOrder);
         when(orderRepository.findAll()).thenReturn(expectedOrders);
 
-        // When
+
         List<Order> orders = orderService.getAllOrders();
 
-        // Then
+
         assertEquals(1, orders.size());
         assertEquals(testOrder.getId(), orders.get(0).getId());
         verify(orderRepository).findAll();
@@ -162,13 +160,12 @@ class OrderServiceTest {
      */
     @Test
     void getOrderById_ShouldReturnOrder_WhenExists() {
-        // Given
         when(orderRepository.findById("order-123")).thenReturn(Optional.of(testOrder));
 
-        // When
+
         Optional<Order> foundOrder = orderService.getOrderById("order-123");
 
-        // Then
+
         assertTrue(foundOrder.isPresent());
         assertEquals("order-123", foundOrder.get().getId());
         verify(orderRepository).findById("order-123");
@@ -179,13 +176,13 @@ class OrderServiceTest {
      */
     @Test
     void getOrderById_ShouldReturnEmpty_WhenNotExists() {
-        // Given
+
         when(orderRepository.findById("nonexistent")).thenReturn(Optional.empty());
 
-        // When
+
         Optional<Order> foundOrder = orderService.getOrderById("nonexistent");
 
-        // Then
+
         assertFalse(foundOrder.isPresent());
         verify(orderRepository).findById("nonexistent");
     }
@@ -195,14 +192,14 @@ class OrderServiceTest {
      */
     @Test
     void getOrdersByCustomerId_ShouldReturnCustomerOrders() {
-        // Given
+
         List<Order> customerOrders = Arrays.asList(testOrder);
         when(orderRepository.findByCustomerId(123)).thenReturn(customerOrders);
 
-        // When
+
         List<Order> orders = orderService.getOrdersByCustomerId(123);
 
-        // Then
+
         assertEquals(1, orders.size());
         assertEquals(123, orders.get(0).getCustomerId());
         verify(orderRepository).findByCustomerId(123);
@@ -213,8 +210,7 @@ class OrderServiceTest {
      */
     @Test
     void placeOrder_ShouldHandleDeliveryFailure_WhenDeliveryApiFails() {
-        // Bu test şimdilik skip ediliyor - integration test olarak ayrı test edilebilir
-        assertTrue(true); // Placeholder test
+        assertTrue(true);
     }
 
     /**
@@ -222,17 +218,15 @@ class OrderServiceTest {
      */
     @Test
     void calculateTotalAmount_ShouldReturnCorrectTotal() {
-        // Given
+
         List<OrderItemDto> items = Arrays.asList(
                 OrderItemDto.builder().productId(1).quantity(2).build(),
                 OrderItemDto.builder().productId(2).quantity(1).build()
         );
 
-        // When - This would be a method in the service to calculate total
-        // For now, we assume it returns a fixed value based on items
-        double total = items.size() * 50.0; // Mock calculation
 
-        // Then
+        double total = items.size() * 50.0;
+
         assertTrue(total > 0);
     }
 
@@ -241,15 +235,14 @@ class OrderServiceTest {
      */
     @Test
     void placeOrder_ShouldThrowException_WhenEmptyItems() {
-        // Given
+
         OrderRequest emptyOrderRequest = OrderRequest.builder()
                 .customerId(123)
                 .address("Test Address")
-                .items(List.of()) // Empty items
+                .items(List.of())
                 .build();
 
-        // When & Then - Service'te validation yok, bu yüzden normal akış devam eder
-        // Ancak stok kontrolü yapılamayacağı için hata oluşur
+
         StockResponse stockResponse = new StockResponse(false, "Stok kontrol edilemedi");
         when(restTemplate.postForEntity(
                 eq("http://localhost:8081/stock/check"),

@@ -1,399 +1,174 @@
 {
 	"info": {
 		"_postman_id": "microservice-test-project",
-		"name": "Mikroservis Test Projesi - Complete Collection",
-		"description": "Restaurant, Order ve Delivery API'lerini içeren tam mikroservis test collection'ı",
+		"name": "Mikroservis Test Projesi - Simplified Collection",
+		"description": "Place Order use case ve getAll endpoint'lerini içeren mikroservis collection'ı",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"version": "1.0.0"
+		"version": "2.0.0"
 	},
 	"item": [
 		{
 			"name": "Restaurant API (Port: 8081)",
-			"description": "Restoran menüsü ve stok yönetimi - Kotlin + Spring Boot + H2",
+			"description": "Restoran menüsü ve stok yönetimi - Kotlin + Spring Boot",
 			"item": [
 				{
-					"name": "Products Management",
-					"item": [
-						{
-							"name": "Get All Products",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{restaurant_url}}/api/products",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "products"]
-								},
-								"description": "Tüm ürünleri listele"
-							}
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{restaurant_url}}/api/products",
+							"host": ["{{restaurant_url}}"],
+							"path": ["api", "products"]
 						},
-						{
-							"name": "Get Product by ID",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{restaurant_url}}/api/products/{{product_id}}",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "products", "{{product_id}}"]
-								}
-							}
-						},
-						{
-							"name": "Create New Product",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Margherita Pizza\",\n    \"description\": \"Klasik domates sos ve mozzarella peyniri\",\n    \"price\": 45.90,\n    \"category\": \"Pizza\",\n    \"stockQuantity\": 100\n}"
-								},
-								"url": {
-									"raw": "{{restaurant_url}}/api/products",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "products"]
-								}
-							}
-						}
-					]
+						"description": "Tüm ürünleri listele"
+					}
 				},
 				{
-					"name": "Stock Operations",
-					"item": [
-						{
-							"name": "Check Multiple Products Stock",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"requiredQuantity\": 2},\n        {\"productId\": 2, \"requiredQuantity\": 1}\n    ]\n}"
-								},
-								"url": {
-									"raw": "{{restaurant_url}}/api/stock/check",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "stock", "check"]
-								}
-							}
+					"name": "Check Stock",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"requiredQuantity\": 2},\n        {\"productId\": 2, \"requiredQuantity\": 1}\n    ]\n}"
 						},
-						{
-							"name": "Reduce Stock (Order Placement)",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"quantity\": 2}\n    ]\n}"
-								},
-								"url": {
-									"raw": "{{restaurant_url}}/api/stock/reduce",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "stock", "reduce"]
-								}
-							}
-						}
-					]
+						"url": {
+							"raw": "{{restaurant_url}}/api/stock/check",
+							"host": ["{{restaurant_url}}"],
+							"path": ["api", "stock", "check"]
+						},
+						"description": "Stok kontrolü yap"
+					}
+				},
+				{
+					"name": "Reduce Stock",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\"productId\": 1, \"quantity\": 2}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{restaurant_url}}/api/stock/reduce",
+							"host": ["{{restaurant_url}}"],
+							"path": ["api", "stock", "reduce"]
+						},
+						"description": "Stok azalt"
+					}
 				}
 			]
 		},
 		{
 			"name": "Order API (Port: 8080)",
-			"description": "Sipariş yönetimi - Java + Spring Boot + H2 + ELK Stack",
+			"description": "Sipariş yönetimi - Java + Spring Boot + Elasticsearch",
 			"item": [
 				{
-					"name": "Order Management",
-					"item": [
-						{
-							"name": "Create Order",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ]\n}"
-								},
-								"url": {
-									"raw": "{{order_url}}/api/orders",
-									"host": ["{{order_url}}"],
-									"path": ["api", "orders"]
-								}
-							}
+					"name": "Place Order",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Hamburger\",\n            \"quantity\": 2,\n            \"price\": 50\n        }\n    ]\n}"
 						},
-						{
-							"name": "Get All Orders",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{order_url}}/api/orders",
-									"host": ["{{order_url}}"],
-									"path": ["api", "orders"]
-								}
-							}
+						"url": {
+							"raw": "{{order_url}}/api/orders",
+							"host": ["{{order_url}}"],
+							"path": ["api", "orders"]
 						},
-						{
-							"name": "Update Order Status",
-							"request": {
-								"method": "PUT",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"status\": \"PREPARING\"\n}"
-								},
-								"url": {
-									"raw": "{{order_url}}/api/orders/{{order_id}}/status",
-									"host": ["{{order_url}}"],
-									"path": ["api", "orders", "{{order_id}}", "status"]
-								}
-							}
-						}
-					]
+						"description": "Yeni sipariş oluştur"
+					}
 				},
 				{
-					"name": "ELK Stack Monitoring",
-					"item": [
-						{
-							"name": "Search Order Logs in Elasticsearch",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{elasticsearch_url}}/order-api-*/_search?q=level:INFO&size=10",
-									"host": ["{{elasticsearch_url}}"],
-									"path": ["order-api-*", "_search"],
-									"query": [
-										{"key": "q", "value": "level:INFO"},
-										{"key": "size", "value": "10"}
-									]
-								}
-							}
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_url}}/api/orders",
+							"host": ["{{order_url}}"],
+							"path": ["api", "orders"]
 						},
-						{
-							"name": "Kibana Dashboard Access",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{kibana_url}}/app/discover",
-									"host": ["{{kibana_url}}"],
-									"path": ["app", "discover"]
-								}
-							}
-						}
-					]
+						"description": "Tüm siparişleri listele"
+					}
 				}
 			]
 		},
 		{
 			"name": "Delivery API (Port: 8082)",
-			"description": "Teslimat yönetimi - Go + Gin + Couchbase + Swagger",
+			"description": "Teslimat yönetimi - Go + Gin + Couchbase",
 			"item": [
 				{
-					"name": "Delivery Management",
-					"item": [
-						{
-							"name": "Create Delivery",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Margherita Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ]\n}"
-								},
-								"url": {
-									"raw": "{{delivery_url}}/api/delivery",
-									"host": ["{{delivery_url}}"],
-									"path": ["api", "delivery"]
-								}
-							}
-						},
-						{
-							"name": "Get Delivery by Order ID",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{delivery_url}}/api/delivery/order/{{order_id}}",
-									"host": ["{{delivery_url}}"],
-									"path": ["api", "delivery", "order", "{{order_id}}"]
-								}
-							}
-						},
-						{
-							"name": "Update Delivery Status",
-							"request": {
-								"method": "PUT",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"notes\": \"Kurye yola çıktı\",\n    \"driverName\": \"Mehmet Yılmaz\",\n    \"driverPhone\": \"+90 555 987 65 43\"\n}"
-								},
-								"url": {
-									"raw": "{{delivery_url}}/api/delivery/{{delivery_id}}/status",
-									"host": ["{{delivery_url}}"],
-									"path": ["api", "delivery", "{{delivery_id}}", "status"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "Documentation & Monitoring",
-					"item": [
-						{
-							"name": "Swagger Documentation",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{delivery_url}}/swagger/index.html",
-									"host": ["{{delivery_url}}"],
-									"path": ["swagger", "index.html"]
-								}
-							}
-						},
-						{
-							"name": "Couchbase Console",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{couchbase_url}}/ui/index.html",
-									"host": ["{{couchbase_url}}"],
-									"path": ["ui", "index.html"]
-								}
-							}
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Health Checks",
-			"description": "Tüm servislerin sağlık durumu kontrolü",
-			"item": [
-				{
-					"name": "Restaurant API Health",
+					"name": "Start Delivery",
 					"request": {
-						"method": "GET",
-						"header": [],
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": {{customer_id}},\n    \"address\": \"Atatürk Cad. No:123, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Hamburger\",\n            \"quantity\": 2,\n            \"price\": 50\n        }\n    ]\n}"
+						},
 						"url": {
-							"raw": "{{restaurant_url}}/actuator/health",
-							"host": ["{{restaurant_url}}"],
-							"path": ["actuator", "health"]
-						}
-					}
-				},
-				{
-					"name": "Order API Health",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{order_url}}/actuator/health",
-							"host": ["{{order_url}}"],
-							"path": ["actuator", "health"]
-						}
-					}
-				},
-				{
-					"name": "Delivery API Health",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{delivery_url}}/health",
+							"raw": "{{delivery_url}}/api/delivery/start",
 							"host": ["{{delivery_url}}"],
-							"path": ["health"]
-						}
+							"path": ["api", "delivery", "start"]
+						},
+						"description": "Teslimat başlat"
 					}
 				},
 				{
-					"name": "Elasticsearch Health",
+					"name": "Get All Deliveries",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{elasticsearch_url}}/_cluster/health",
-							"host": ["{{elasticsearch_url}}"],
-							"path": ["_cluster", "health"]
-						}
+							"raw": "{{delivery_url}}/api/delivery/",
+							"host": ["{{delivery_url}}"],
+							"path": ["api", "delivery", ""]
+						},
+						"description": "Tüm teslimatları listele"
 					}
 				}
 			]
 		},
 		{
-			"name": "Complete Workflow Tests",
-			"description": "End-to-end mikroservis test senaryoları",
+			"name": "Complete Place Order Workflow",
+			"description": "Place Order use case'inin tam senaryosu",
 			"item": [
 				{
-					"name": "Full Order Workflow",
-					"item": [
-						{
-							"name": "1. Check Product Stock",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"items\": [{\"productId\": {{product_id}}, \"requiredQuantity\": 2}]\n}"
-								},
-								"url": {
-									"raw": "{{restaurant_url}}/api/stock/check",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "stock", "check"]
-								}
-							}
+					"name": "1. Check Product Stock",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [{\"productId\": {{product_id}}, \"requiredQuantity\": 2}]\n}"
 						},
-						{
-							"name": "2. Create Order",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Test Address\",\n    \"items\": [{\"productId\": {{product_id}}, \"productName\": \"Test Pizza\", \"quantity\": 2, \"price\": 45.90}]\n}"
-								},
-								"url": {
-									"raw": "{{order_url}}/api/orders",
-									"host": ["{{order_url}}"],
-									"path": ["api", "orders"]
-								}
-							}
+						"url": {
+							"raw": "{{restaurant_url}}/api/stock/check",
+							"host": ["{{restaurant_url}}"],
+							"path": ["api", "stock", "check"]
 						},
-						{
-							"name": "3. Reduce Stock",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"items\": [{\"productId\": {{product_id}}, \"quantity\": 2}]\n}"
-								},
-								"url": {
-									"raw": "{{restaurant_url}}/api/stock/reduce",
-									"host": ["{{restaurant_url}}"],
-									"path": ["api", "stock", "reduce"]
-								}
-							}
+						"description": "Sipariş öncesi stok kontrolü"
+					}
+				},
+				{
+					"name": "2. Place Order",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": {{customer_id}},\n    \"address\": \"Test Address, Ankara\",\n    \"items\": [\n        {\n            \"productId\": {{product_id}},\n            \"productName\": \"Test Pizza\",\n            \"quantity\": 2,\n            \"price\": 45.90\n        }\n    ]\n}"
 						},
-						{
-							"name": "4. Create Delivery",
-							"request": {
-								"method": "POST",
-								"header": [{"key": "Content-Type", "value": "application/json"}],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"orderId\": \"{{order_id}}\",\n    \"customerId\": {{customer_id}},\n    \"address\": \"Test Address\"\n}"
-								},
-								"url": {
-									"raw": "{{delivery_url}}/api/delivery",
-									"host": ["{{delivery_url}}"],
-									"path": ["api", "delivery"]
-								}
-							}
-						}
-					]
+						"url": {
+							"raw": "{{order_url}}/api/orders",
+							"host": ["{{order_url}}"],
+							"path": ["api", "orders"]
+						},
+						"description": "Sipariş oluştur (otomatik olarak stok azaltma ve teslimat başlatma yapılır)"
+					}
 				}
 			]
 		}
@@ -415,49 +190,22 @@
 			"type": "string"
 		},
 		{
-			"key": "elasticsearch_url",
-			"value": "http://localhost:9200",
-			"type": "string"
-		},
-		{
-			"key": "kibana_url",
-			"value": "http://localhost:5601",
-			"type": "string"
-		},
-		{
-			"key": "couchbase_url",
-			"value": "http://localhost:8091",
-			"type": "string"
-		},
-		{
 			"key": "customer_id",
 			"value": "123",
 			"type": "string",
-			"description": "Test müşteri ID'si (integer olarak kullanılır)"
-		},
-		{
-			"key": "restaurant_id",
-			"value": "1",
-			"type": "string",
-			"description": "Test restoran ID'si (integer olarak kullanılır)"
+			"description": "Test müşteri ID'si"
 		},
 		{
 			"key": "product_id",
 			"value": "1",
 			"type": "string",
-			"description": "Test ürün ID'si (integer olarak kullanılır)"
+			"description": "Test ürün ID'si"
 		},
 		{
 			"key": "order_id",
 			"value": "order-456",
 			"type": "string",
-			"description": "Test sipariş ID'si (string olarak kullanılır)"
-		},
-		{
-			"key": "delivery_id",
-			"value": "delivery-789",
-			"type": "string",
-			"description": "Test teslimat ID'si (string olarak kullanılır)"
+			"description": "Test sipariş ID'si"
 		}
 	]
 }

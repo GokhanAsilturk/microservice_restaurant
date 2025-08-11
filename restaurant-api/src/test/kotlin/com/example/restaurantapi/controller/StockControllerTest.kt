@@ -17,9 +17,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-/**
- * StockController için Integration Test Sınıfı
- */
 @WebMvcTest(StockController::class)
 class StockControllerTest {
 
@@ -43,19 +40,14 @@ class StockControllerTest {
         )
     }
 
-    /**
-     * Test 1: POST /api/stock/check - Stok kontrolü başarılı
-     */
     @Test
     fun `checkStock should return stock availability`() {
-        // Given
         val stockResponse = StockResponse(
             available = true,
             message = "Stok yeterli"
         )
         whenever(stockService.checkStock(any())).thenReturn(stockResponse)
 
-        // When & Then
         mockMvc.perform(
             post("/api/stock/check")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -67,19 +59,14 @@ class StockControllerTest {
             .andExpect(jsonPath("$.message").value("Stok yeterli"))
     }
 
-    /**
-     * Test 2: POST /api/stock/check - Stok yetersiz
-     */
     @Test
     fun `checkStock should return insufficient stock`() {
-        // Given
         val stockResponse = StockResponse(
             available = false,
             message = "Stok yetersiz"
         )
         whenever(stockService.checkStock(any())).thenReturn(stockResponse)
 
-        // When & Then
         mockMvc.perform(
             post("/api/stock/check")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -90,19 +77,14 @@ class StockControllerTest {
             .andExpect(jsonPath("$.message").value("Stok yetersiz"))
     }
 
-    /**
-     * Test 3: POST /api/stock/reduce - Stok azaltma başarılı
-     */
     @Test
     fun `reduceStock should reduce stock successfully`() {
-        // Given
         val stockResponse = StockResponse(
             available = true,
             message = "Stok başarıyla azaltıldı"
         )
         whenever(stockService.reduceStock(any())).thenReturn(stockResponse)
 
-        // When & Then
         mockMvc.perform(
             post("/api/stock/reduce")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,19 +95,14 @@ class StockControllerTest {
             .andExpect(jsonPath("$.message").value("Stok başarıyla azaltıldı"))
     }
 
-    /**
-     * Test 4: POST /api/stock/reduce - Stok azaltma başarısız
-     */
     @Test
     fun `reduceStock should return bad request when insufficient stock`() {
-        // Given
         val stockResponse = StockResponse(
             available = false,
             message = "Stok yetersiz, azaltılamadı"
         )
         whenever(stockService.reduceStock(any())).thenReturn(stockResponse)
 
-        // When & Then
         mockMvc.perform(
             post("/api/stock/reduce")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -136,12 +113,8 @@ class StockControllerTest {
             .andExpect(jsonPath("$.message").value("Stok yetersiz, azaltılamadı"))
     }
 
-    /**
-     * Test 5: Geçersiz JSON - check endpoint
-     */
     @Test
     fun `checkStock should return 400 for invalid JSON`() {
-        // When & Then
         mockMvc.perform(
             post("/api/stock/check")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -150,12 +123,8 @@ class StockControllerTest {
             .andExpect(status().isBadRequest)
     }
 
-    /**
-     * Test 6: Geçersiz JSON - reduce endpoint
-     */
     @Test
     fun `reduceStock should return 400 for invalid JSON`() {
-        // When & Then
         mockMvc.perform(
             post("/api/stock/reduce")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -12,7 +12,7 @@ class DataLoader {
     @Bean
     fun initDatabase(productRepository: ProductRepository): CommandLineRunner {
         return CommandLineRunner { args ->
-            // Sadece veritabanı boşsa default ürünleri ekle
+
             if (productRepository.count() == 0L) {
                 val products = listOf(
                     Product(name = "Hamburger", price = 50.0, stockQuantity = 20),

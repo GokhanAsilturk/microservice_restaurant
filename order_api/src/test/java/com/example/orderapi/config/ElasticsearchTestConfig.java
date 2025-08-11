@@ -8,12 +8,6 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/**
- * Elasticsearch Test Konfigürasyonu
- * <p>
- * Bu sınıf test ortamında Elasticsearch container'ını başlatır ve
- * Spring Data Elasticsearch'ün bu container'a bağlanmasını sağlar.
- */
 @TestConfiguration
 public class ElasticsearchTestConfig extends ElasticsearchConfiguration {
 
