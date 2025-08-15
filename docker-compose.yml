@@ -102,7 +102,7 @@ services:
     networks:
       - microservice-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d restaurant_api" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d restaurant_api || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -143,7 +143,12 @@ services:
     image: couchbase:community-7.6.2
     container_name: delivery-api-couchbasedb
     ports:
-      - "8091-8096:8091-8096"
+      - "8091:8091"
+      - "8092:8092"
+      - "8093:8093"
+      - "8094:8094"
+      - "8095:8095"
+      - "8096:8096"
       - "11210:11210"
     environment:
       - COUCHBASE_ADMINISTRATOR_USERNAME=admin

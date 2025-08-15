@@ -1,5 +1,6 @@
 package com.example.orderapi.model.order;
 
+import com.example.orderapi.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class Order {
     private String address;
 
     @Field(type = FieldType.Keyword)
-    private String status;
+    private OrderStatus status;
 
     @Field(type = FieldType.Nested)
     private List<OrderItem> items;

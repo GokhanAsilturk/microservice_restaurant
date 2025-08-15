@@ -1,5 +1,6 @@
 package com.example.orderapi.model.request;
 
+import com.example.orderapi.model.enums.OrderStatus;
 import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.order.OrderItem;
 import com.example.orderapi.model.order.OrderItemDto;
@@ -28,7 +29,7 @@ public class OrderRequest {
                 address(address).
                 items(convertToOrderItems(items)).
                 totalAmount(calculateTotalAmount(items)).
-                status("CONFIRMED").
+                status(OrderStatus.CONFIRMED).
                 orderDate(java.time.LocalDateTime.now().toString()).build();
     }
 

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -16,23 +17,23 @@ func StartDelivery(c *gin.Context) {
 	var request models.DeliveryRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, models.DeliveryResponse{
-			Success: false,
-			Message: "Geçersiz istek formatı: " + err.Error(),
-		})
+		log.Printf("Geçersiz teslimat isteği formatı: %v", err)
+		response := models.ErrorResponseWithCode("Geçersiz istek formatı", "INVALID_REQUEST")
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if request.Address == "" {
-		c.JSON(http.StatusBadRequest, models.DeliveryResponse{
-			Success: false,
-			Message: "Teslimat adresi gerekli",
-		})
+		log.Printf("Teslimat adresi eksik, sipariş ID: %s", request.OrderId)
+		response := models.ErrorResponseWithCode("Teslimat adresi gerekli", "MISSING_ADDRESS")
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	lastDeliveryId++
 	deliveryId := lastDeliveryId
+
+	log.Printf("Yeni teslimat oluşturuluyor, sipariş ID: %s, teslimat ID: %d", request.OrderId, deliveryId)
 
 	delivery := models.Delivery{
 		ID:         fmt.Sprintf("delivery::%d", deliveryId),
@@ -41,7 +42,7 @@ func StartDelivery(c *gin.Context) {
 		OrderId:    request.OrderId,
 		CustomerId: request.CustomerId,
 		Address:    request.Address,
-		Status:     "PREPARING",
+		Status:     models.StatusPending,
 		Items:      request.Items,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
@@ -49,21 +50,26 @@ func StartDelivery(c *gin.Context) {
 
 	_, err := database.Collection.Insert(delivery.ID, delivery, nil)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.DeliveryResponse{
-			Success: false,
-			Message: "Teslimat kaydedilemedi: " + err.Error(),
-		})
+		log.Printf("Teslimat kaydedilemedi, teslimat ID: %d, hata: %v", deliveryId, err)
+		response := models.ErrorResponseWithCode("Teslimat kaydedilemedi", "DATABASE_ERROR")
+		c.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	c.JSON(http.StatusOK, models.DeliveryResponse{
+	log.Printf("Teslimat başarıyla oluşturuldu, teslimat ID: %d", deliveryId)
+
+	deliveryResponse := models.DeliveryResponse{
 		Success:    true,
 		DeliveryId: deliveryId,
 		Message:    "Teslimat başarıyla oluşturuldu ve hazırlanıyor",
-	})
+	}
+
+	response := models.SuccessResponseWithMessage(deliveryResponse, "Teslimat başarıyla oluşturuldu")
+	c.JSON(http.StatusOK, response)
 }
 
 func GetAllDeliveries(c *gin.Context) {
+	log.Println("Tüm teslimatlar istendi")
 	var deliveryList []models.Delivery
 
 	query := "SELECT meta().id, deliveryId, orderId, customerId, address, status, items, createdAt, updatedAt " +
@@ -72,10 +78,9 @@ func GetAllDeliveries(c *gin.Context) {
 
 	queryResult, err := database.Cluster.Query(query, nil)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "Teslimatlar alınamadı: " + err.Error(),
-		})
+		log.Printf("Teslimatlar sorgulanamadı: %v", err)
+		response := models.ErrorResponseWithCode("Teslimatlar alınamadı", "DATABASE_ERROR")
+		c.JSON(http.StatusInternalServerError, response)
 		return
 	}
 	defer queryResult.Close()
@@ -84,14 +89,15 @@ func GetAllDeliveries(c *gin.Context) {
 		var delivery models.Delivery
 		err := queryResult.Row(&delivery)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"message": "Teslimat verileri işlenemedi: " + err.Error(),
-			})
+			log.Printf("Teslimat verileri işlenemedi: %v", err)
+			response := models.ErrorResponseWithCode("Teslimat verileri işlenemedi", "DATA_PROCESSING_ERROR")
+			c.JSON(http.StatusInternalServerError, response)
 			return
 		}
 		deliveryList = append(deliveryList, delivery)
 	}
 
-	c.JSON(http.StatusOK, deliveryList)
+	log.Printf("%d adet teslimat döndürüldü", len(deliveryList))
+	response := models.SuccessResponseWithMessage(deliveryList, "Teslimatlar başarıyla getirildi")
+	c.JSON(http.StatusOK, response)
 }

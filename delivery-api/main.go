@@ -3,14 +3,13 @@ package main
 import (
 	"delivery-api/database"
 	"delivery-api/routes"
-	"fmt"
 	"log"
 
 	_ "delivery-api/docs"
 )
 
 func main() {
-	fmt.Println("Delivery API başlatılıyor...")
+	log.Println("Delivery API başlatılıyor...")
 
 	database.InitCouchbase()
 

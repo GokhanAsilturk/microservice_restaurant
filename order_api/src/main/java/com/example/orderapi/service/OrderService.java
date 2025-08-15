@@ -1,14 +1,16 @@
 package com.example.orderapi.service;
 
+import com.example.orderapi.exception.OrderProcessingException;
 import com.example.orderapi.model.order.Order;
-import com.example.orderapi.model.order.OrderItem;
-import com.example.orderapi.model.order.OrderItemDto;
-import com.example.orderapi.model.request.DeliveryRequest;
+import com.example.orderapi.model.enums.OrderStatus;
 import com.example.orderapi.model.request.OrderRequest;
+import com.example.orderapi.model.order.OrderItemDto;
 import com.example.orderapi.model.request.StockRequest;
-import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.model.response.StockResponse;
+import com.example.orderapi.model.response.DeliveryResponse;
 import com.example.orderapi.repository.OrderRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final RestTemplate restTemplate;
     private final OrderRepository orderRepository;
@@ -38,84 +42,64 @@ public class OrderService {
     }
 
     public String placeOrder(OrderRequest request) {
+        logger.info("Order creation process started: {}", request);
+
         if (!checkStock(request.getItems())) {
-            throw new RuntimeException("Stok yetersiz");
+            logger.warn("Insufficient stock, order rejected: {}", request);
+            throw new OrderProcessingException("Insufficient stock");
         }
 
         Order order = request.toEntity();
         order = orderRepository.save(order);
+        logger.info("Order saved, ID: {}", order.getId());
 
         try {
             DeliveryResponse deliveryResponse = startDelivery(order);
             if (deliveryResponse != null && deliveryResponse.isSuccess()) {
                 order.setDeliveryId(deliveryResponse.getDeliveryId());
-                order.setStatus("DELIVERING");
-
+                order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
                 orderRepository.save(order);
-                System.out.println("Sipariş başarıyla güncellendi, teslimat ID: " + order.getDeliveryId());
+                logger.info("Order successfully updated, delivery ID: {}", order.getDeliveryId());
             } else {
-                order.setStatus("PENDING_DELIVERY");
+                order.setStatus(OrderStatus.PENDING);
                 orderRepository.save(order);
-                System.out.println("Teslimat başlatılamadı, sipariş PENDING_DELIVERY durumuna alındı.");
+                logger.warn("Delivery could not be started, order set to PENDING status");
             }
         } catch (ResourceAccessException e) {
-            System.err.println("Teslimat servisine bağlanılamadı: " + e.getMessage());
-            order.setStatus("PENDING_DELIVERY");
+            logger.error("Could not connect to delivery service: {}", e.getMessage());
+            order.setStatus(OrderStatus.PENDING);
             orderRepository.save(order);
-            System.out.println("Teslimat servisine bağlanılamadı, sipariş PENDING_DELIVERY durumuna alındı.");
         } catch (Exception e) {
-            System.err.println("Teslimat başlatma hatası: " + e.getMessage());
-            e.printStackTrace();
-            order.setStatus("PENDING_DELIVERY");
+            logger.error("Delivery start error: {}", e.getMessage(), e);
+            order.setStatus(OrderStatus.PENDING);
             orderRepository.save(order);
-            System.out.println("Beklenmeyen hata, sipariş PENDING_DELIVERY durumuna alındı.");
         }
 
         if (!reduceStock(request.getItems())) {
-            order.setStatus("STOCK_ERROR");
+            order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
-            return "Sipariş alındı, ancak stok güncelleme işleminde sorun oluştu.";
+            logger.error("Stock update failed, order cancelled: {}", order.getId());
+            throw new OrderProcessingException("Stock update failed");
         }
 
-        return "Sipariş başarıyla oluşturuldu";
+        logger.info("Order successfully created: {}", order.getId());
+        return "Order successfully created";
     }
-
 
     public List<Order> getAllOrders() {
         return StreamSupport.stream(orderRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
 
-    private boolean reduceStock(List<OrderItemDto> items) {
-        try {
-            StockRequest stockRequest = new StockRequest(
-                    items.stream()
-                            .map(
-                                    item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
-                            .toList()
-            );
-
-            ResponseEntity<StockResponse> response = restTemplate.postForEntity(
-                    restaurantApiUrl + "/stock/reduce",
-                    stockRequest,
-                    StockResponse.class
-            );
-
-            return Objects.requireNonNull(response.getBody()).isAvailable();
-        } catch (Exception e) {
-            System.out.println("Stok azaltma hatası: " + e.getMessage());
-            return false;
-        }
-    }
-
     private boolean checkStock(List<OrderItemDto> items) {
         try {
-            StockRequest stockRequest = new StockRequest(
-                    items.stream()
-                            .map(item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
-                            .toList()
-            );
+            logger.debug("Stock check started: {}", items);
 
+            List<StockRequest.StockItemDto> stockItems = items.stream()
+                    .map(item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
+                    .collect(Collectors.toList());
+
+            StockRequest stockRequest = new StockRequest(stockItems);
 
             ResponseEntity<StockResponse> response = restTemplate.postForEntity(
                     restaurantApiUrl + "/stock/check",
@@ -123,50 +107,61 @@ public class OrderService {
                     StockResponse.class
             );
 
-            return Objects.requireNonNull(response.getBody()).isAvailable();
+            StockResponse stockResponse = response.getBody();
+            boolean available = stockResponse != null && stockResponse.isAvailable();
+            logger.debug("Stock check result: {}", available);
+            return available;
+
         } catch (Exception e) {
-            System.out.println("Stok kontrol hatası: " + e.getMessage());
+            logger.error("Stock check error: {}", e.getMessage());
             return false;
         }
     }
 
+    private boolean reduceStock(List<OrderItemDto> items) {
+        try {
+            logger.debug("Stock reduction started: {}", items);
+
+            List<StockRequest.StockItemDto> stockItems = items.stream()
+                    .map(item -> new StockRequest.StockItemDto(item.getProductId(), item.getQuantity()))
+                    .collect(Collectors.toList());
+
+            StockRequest stockRequest = new StockRequest(stockItems);
+
+            ResponseEntity<StockResponse> response = restTemplate.postForEntity(
+                    restaurantApiUrl + "/stock/reduce",
+                    stockRequest,
+                    StockResponse.class
+            );
+
+            StockResponse stockResponse = response.getBody();
+            boolean success = stockResponse != null && stockResponse.isAvailable();
+            logger.debug("Stock reduction result: {}", success);
+            return success;
+
+        } catch (Exception e) {
+            logger.error("Stock reduction error: {}", e.getMessage());
+            return false;
+        }
+    }
 
     private DeliveryResponse startDelivery(Order order) {
         try {
-            DeliveryRequest deliveryRequest = new DeliveryRequest(
-                    order.getId(),
-                    order.getCustomerId(),
-                    order.getAddress(),
-                    order.getItems().stream().map(OrderItem::toDto).toList()
-            );
-
-            System.out.println("Teslimat isteği gönderiliyor: " + deliveryRequest);
+            logger.debug("Starting delivery for order: {}", order.getId());
 
             ResponseEntity<DeliveryResponse> response = restTemplate.postForEntity(
                     deliveryApiUrl + "/start",
-                    deliveryRequest,
+                    order,
                     DeliveryResponse.class
             );
 
-            System.out.println("Teslimat API yanıtı: " + response.getStatusCode());
+            DeliveryResponse deliveryResponse = response.getBody();
+            logger.debug("Delivery response: {}", deliveryResponse);
+            return deliveryResponse;
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                DeliveryResponse deliveryResponse = response.getBody();
-                System.out.println("Teslimat yanıtı: " + deliveryResponse);
-
-                if (deliveryResponse.isSuccess()) {
-                    return deliveryResponse;
-                } else {
-                    System.out.println("Teslimat başarısız: " + deliveryResponse.getMessage());
-                }
-            } else {
-                System.out.println("Teslimat API'den geçersiz yanıt alındı");
-            }
-            return null;
         } catch (Exception e) {
-            System.out.println("Teslimat başlatma hatası: " + e.getMessage());
-            e.printStackTrace();
-            throw e; // Üst metotta yakalanması için
+            logger.error("Delivery start error: {}", e.getMessage());
+            throw new OrderProcessingException("Delivery could not be started", e);
         }
     }
 }

@@ -2,12 +2,15 @@ package com.example.restaurantapi.config
 
 import com.example.restaurantapi.model.Product
 import com.example.restaurantapi.repository.ProductRepository
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 class DataLoader {
+
+    private val logger = LoggerFactory.getLogger(DataLoader::class.java)
 
     @Bean
     fun initDatabase(productRepository: ProductRepository): CommandLineRunner {
@@ -23,9 +26,9 @@ class DataLoader {
                 )
 
                 productRepository.saveAll(products)
-                println("Örnek ürünler veritabanına yüklendi. Toplam ürün sayısı: ${productRepository.count()}")
+                logger.info("Örnek ürünler veritabanına yüklendi. Toplam ürün sayısı: {}", productRepository.count())
             } else {
-                println("Veritabanında zaten ürünler mevcut. Mevcut ürün sayısı: ${productRepository.count()}")
+                logger.info("Veritabanında zaten ürünler mevcut. Mevcut ürün sayısı: {}", productRepository.count())
             }
         }
     }
