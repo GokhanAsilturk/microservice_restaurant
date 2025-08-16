@@ -9,6 +9,7 @@ import com.example.orderapi.model.order.OrderItemDto;
 import com.example.orderapi.model.request.StockRequest;
 import com.example.orderapi.model.response.StockResponse;
 import com.example.orderapi.model.response.DeliveryResponse;
+import com.example.orderapi.model.request.DeliveryRequest;
 import com.example.orderapi.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,9 +155,16 @@ public class OrderService {
         try {
             logger.debug("Creating delivery for order: {}", order.getId());
 
+            DeliveryRequest deliveryRequest = new DeliveryRequest(
+                    order.getId(),
+                    order.getCustomerId(),
+                    order.getAddress(),
+                    order.getItems() != null ? order.getItems().stream().map(com.example.orderapi.model.order.OrderItem::toDto).collect(Collectors.toList()) : null
+            );
+
             ResponseEntity<DeliveryResponse> response = restTemplate.postForEntity(
-                    deliveryApiUrl + "/create",
-                    order,
+                    deliveryApiUrl + "/start",
+                    deliveryRequest,
                     DeliveryResponse.class
             );
 
