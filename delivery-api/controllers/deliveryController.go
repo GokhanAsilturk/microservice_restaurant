@@ -5,7 +5,6 @@ import (
 	"log"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 
 	"delivery-api/database"
 	"delivery-api/models"
@@ -30,37 +29,42 @@ func StartDelivery(c *gin.Context) {
 		return
 	}
 
+	deliveryDomain := request.ToDomain()
+
 	lastDeliveryId++
-	deliveryId := lastDeliveryId
+	deliveryDomain.ID = fmt.Sprintf("delivery::%d", lastDeliveryId)
 
-	log.Printf("Yeni teslimat oluşturuluyor, sipariş ID: %s, teslimat ID: %d", request.OrderId, deliveryId)
-
-	delivery := models.Delivery{
-		ID:         fmt.Sprintf("delivery::%d", deliveryId),
-		Type:       "delivery",
-		DeliveryId: deliveryId,
-		OrderId:    request.OrderId,
-		CustomerId: request.CustomerId,
-		Address:    request.Address,
-		Status:     models.StatusPending,
-		Items:      request.Items,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+	if !deliveryDomain.CanAssign() {
+		log.Printf("Teslimat atama için uygun durumda değil: %s", deliveryDomain.ID)
+		response := models.ErrorResponseWithCode("Teslimat durumu uygun değil", "INVALID_STATUS")
+		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 
-	_, err := database.Collection.Insert(delivery.ID, delivery, nil)
+	err := deliveryDomain.Assign()
 	if err != nil {
-		log.Printf("Teslimat kaydedilemedi, teslimat ID: %d, hata: %v", deliveryId, err)
+		log.Printf("Teslimat atama hatası: %v", err)
+		response := models.ErrorResponseWithCode("Teslimat atanamadı", "ASSIGNMENT_FAILED")
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	log.Printf("Yeni teslimat oluşturuluyor, sipariş ID: %s, teslimat ID: %s", deliveryDomain.OrderID, deliveryDomain.ID)
+
+	entity := models.DomainToEntity(deliveryDomain)
+	_, err = database.Collection.Insert(entity.ID, entity, nil)
+	if err != nil {
+		log.Printf("Teslimat kaydedilemedi, teslimat ID: %s, hata: %v", deliveryDomain.ID, err)
 		response := models.ErrorResponseWithCode("Teslimat kaydedilemedi", "DATABASE_ERROR")
 		c.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	log.Printf("Teslimat başarıyla oluşturuldu, teslimat ID: %d", deliveryId)
+	log.Printf("Teslimat başarıyla oluşturuldu, teslimat ID: %d", lastDeliveryId)
 
 	deliveryResponse := models.DeliveryResponse{
 		Success:    true,
-		DeliveryId: deliveryId,
+		DeliveryId: lastDeliveryId,
 		Message:    "Teslimat başarıyla oluşturuldu ve hazırlanıyor",
 	}
 

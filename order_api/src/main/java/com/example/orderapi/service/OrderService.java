@@ -1,5 +1,6 @@
 package com.example.orderapi.service;
 
+import com.example.orderapi.domain.OrderDomain;
 import com.example.orderapi.exception.OrderProcessingException;
 import com.example.orderapi.model.order.Order;
 import com.example.orderapi.model.enums.OrderStatus;
@@ -44,46 +45,30 @@ public class OrderService {
     public String placeOrder(OrderRequest request) {
         logger.info("Order creation process started: {}", request);
 
+        OrderDomain orderDomain = request.toDomain();
+
+        if (!orderDomain.isValidForDelivery()) {
+            logger.warn("Invalid order data: {}", request);
+            throw new OrderProcessingException("Geçersiz sipariş bilgileri");
+        }
+
         if (!checkStock(request.getItems())) {
             logger.warn("Insufficient stock, order rejected: {}", request);
             throw new OrderProcessingException("Insufficient stock");
         }
 
-        Order order = request.toEntity();
-        order = orderRepository.save(order);
-        logger.info("Order saved, ID: {}", order.getId());
+        orderDomain.confirm();
 
-        try {
-            DeliveryResponse deliveryResponse = startDelivery(order);
-            if (deliveryResponse != null && deliveryResponse.isSuccess()) {
-                order.setDeliveryId(deliveryResponse.getDeliveryId());
-                order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
-                orderRepository.save(order);
-                logger.info("Order successfully updated, delivery ID: {}", order.getDeliveryId());
-            } else {
-                order.setStatus(OrderStatus.PENDING);
-                orderRepository.save(order);
-                logger.warn("Delivery could not be started, order set to PENDING status");
-            }
-        } catch (ResourceAccessException e) {
-            logger.error("Could not connect to delivery service: {}", e.getMessage());
-            order.setStatus(OrderStatus.PENDING);
-            orderRepository.save(order);
-        } catch (Exception e) {
-            logger.error("Delivery start error: {}", e.getMessage(), e);
-            order.setStatus(OrderStatus.PENDING);
-            orderRepository.save(order);
+        Order savedOrder = orderRepository.save(orderDomain.toEntity());
+        logger.info("Order saved successfully with ID: {}", savedOrder.getId());
+
+        if (!createDelivery(savedOrder)) {
+            logger.error("Delivery creation failed for order: {}", savedOrder.getId());
+            throw new OrderProcessingException("Delivery creation failed");
         }
 
-        if (!reduceStock(request.getItems())) {
-            order.setStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-            logger.error("Stock update failed, order cancelled: {}", order.getId());
-            throw new OrderProcessingException("Stock update failed");
-        }
-
-        logger.info("Order successfully created: {}", order.getId());
-        return "Order successfully created";
+        logger.info("Order process completed successfully: {}", savedOrder.getId());
+        return savedOrder.getId();
     }
 
     public List<Order> getAllOrders() {
@@ -162,6 +147,27 @@ public class OrderService {
         } catch (Exception e) {
             logger.error("Delivery start error: {}", e.getMessage());
             throw new OrderProcessingException("Delivery could not be started", e);
+        }
+    }
+
+    private boolean createDelivery(Order order) {
+        try {
+            logger.debug("Creating delivery for order: {}", order.getId());
+
+            ResponseEntity<DeliveryResponse> response = restTemplate.postForEntity(
+                    deliveryApiUrl + "/create",
+                    order,
+                    DeliveryResponse.class
+            );
+
+            DeliveryResponse deliveryResponse = response.getBody();
+            boolean success = deliveryResponse != null && deliveryResponse.isSuccess();
+            logger.debug("Delivery creation result: {}", success);
+            return success;
+
+        } catch (Exception e) {
+            logger.error("Delivery creation error: {}", e.getMessage());
+            return false;
         }
     }
 }
